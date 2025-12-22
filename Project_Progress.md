@@ -11,7 +11,8 @@
 **📝 Logic:**
 > - If wrong username or password -> Show "Access Denied" or Error Message.
 > - If successful -> Redirect to Homepage.
-![alt text](image-1.png)
+
+- ![alt text](image-1.png)
 ---
 
 ## 📚 Bunarith (Main Entity - Books)
@@ -21,7 +22,8 @@
 - [ ] **Book listing** (Table view of all books)
 - [ ] **Add/Edit book** (CRUD Forms)
 - [ ] **Book detail** (View single book info)
-![alt text](image.png)
+
+- ![alt text](image.png)
 ---
 
 ## 🔄 Mengheang (Borrowing Logic & UI)
@@ -35,7 +37,8 @@
 >   - *If No* -> Cannot borrow anymore.
 > - **Check Overdue:** If member has an overdue book.
 >   - *Result* -> Member suspended from borrowing more.
-![alt text](image-2.png)
+
+- ![alt text](image-2.png)
 ---
 
 ## 👥 Sophath (Secondary Entity - Members)
@@ -47,7 +50,8 @@
 
 **📝 Logic:**
 > - **Role View:** Logic is similar to an Admin page, but accessible by the Librarian to manage members.
-![alt text](image-4.png)
+
+- ![alt text](image-4.png)
 ---
 
 ## 🛠 Vireak (Backend & Database Lead)
@@ -58,7 +62,8 @@
 - [✅] **Add Diagram for each member** (progress 2) 
 - [ ] **Database** (ERD, Entity Relationships, Connection)
 - [ ] **Make Completion** (Final integration, Dashboard stats, Polish)
-![alt text](image-3.png)
+
+- ![alt text](image-3.png)
 ---
 
 ## ✅ Team Checklist
