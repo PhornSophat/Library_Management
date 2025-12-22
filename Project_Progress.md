@@ -11,7 +11,7 @@
 **📝 Logic:**
 > - If wrong username or password -> Show "Access Denied" or Error Message.
 > - If successful -> Redirect to Homepage.
-
+![alt text](image-1.png)
 ---
 
 ## 📚 Bunarith (Main Entity - Books)
@@ -21,7 +21,7 @@
 - [ ] **Book listing** (Table view of all books)
 - [ ] **Add/Edit book** (CRUD Forms)
 - [ ] **Book detail** (View single book info)
-
+![alt text](image.png)
 ---
 
 ## 🔄 Mengheang (Borrowing Logic & UI)
@@ -35,7 +35,7 @@
 >   - *If No* -> Cannot borrow anymore.
 > - **Check Overdue:** If member has an overdue book.
 >   - *Result* -> Member suspended from borrowing more.
-
+![alt text](image-2.png)
 ---
 
 ## 👥 Sophath (Secondary Entity - Members)
@@ -47,22 +47,23 @@
 
 **📝 Logic:**
 > - **Role View:** Logic is similar to an Admin page, but accessible by the Librarian to manage members.
-
+![alt text](image-4.png)
 ---
 
 ## 🛠 Vireak (Backend & Database Lead)
 *Responsible for Structure and Completion.*
 
-- [✅] **Setup Project**
-- [✅] **Backend Setup** (Spring Boot init, Dependencies)
+- [✅] **Setup Project** (progress 1)
+- [✅] **Backend Setup** (Spring Boot init,Dependencies) (progess 1)
+- [✅] **Add Diagram for each member** (progress 2) 
 - [ ] **Database** (ERD, Entity Relationships, Connection)
 - [ ] **Make Completion** (Final integration, Dashboard stats, Polish)
-
+![alt text](image-3.png)
 ---
 
 ## ✅ Team Checklist
-- [✅] Github Repository Created
-- [✅] Database Connected
+- [✅] Github Repository Created (progess 1)
+- [✅] Database Connected (progress 1)
 - [ ] Security Login Working
 - [ ] All CRUDs Working
 - [ ] Borrowing Logic Tested

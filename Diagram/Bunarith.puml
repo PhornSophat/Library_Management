@@ -1,0 +1,27 @@
+@startuml
+title Bunarith: Book Management Scope (Use Case Diagram)
+left to right direction
+
+actor "Librarian" as Admin
+
+rectangle "Book Management System" {
+    usecase "View Book List" as UC1
+    usecase "Add New Book" as UC2
+    usecase "Edit Book Details" as UC3
+    usecase "Delete Book" as UC4
+    
+    (UC2) .> (Validate ISBN Unique) : <<include>>
+    (UC4) .> (Check if Borrowed) : <<include>>
+}
+
+Admin --> UC1
+Admin --> UC2
+Admin --> UC3
+Admin --> UC4
+
+note right of UC4
+  Logic: Cannot delete if
+  Status == BORROWED
+end note
+
+@enduml

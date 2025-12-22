@@ -1,0 +1,43 @@
+@startuml
+title Mengheang: Borrowing Logic Check (Activity Diagram)
+
+|Librarian (UI)|
+start
+:Select Member;
+:Select Book;
+:Click "Borrow";
+
+|System Logic|
+if (Is Book Available?) then (No)
+    #Pink:Error: "Book already borrowed";
+    |Librarian (UI)|
+    :Show Error Message;
+    stop
+endif
+
+|System Logic|
+if (Member has Overdue Books?) then (Yes)
+    #Red:Error: "Member Suspended";
+    |Librarian (UI)|
+    :Show Suspension Alert;
+    stop
+endif
+
+|System Logic|
+if (Member reached Borrow Limit?) then (Yes)
+    #Orange:Error: "Return old books first";
+    |Librarian (UI)|
+    :Show Limit Alert;
+    stop
+endif
+
+|System Logic|
+#LightGreen:Create Borrow Record;
+:Update Book Status -> BORROWED;
+:Calculate Due Date;
+
+|Librarian (UI)|
+:Show Success Message;
+stop
+
+@enduml

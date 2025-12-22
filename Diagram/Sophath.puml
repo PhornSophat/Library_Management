@@ -1,0 +1,37 @@
+@startuml
+title Sophath: Member Module Structure (Class Diagram)
+
+package "Member Management Module" {
+    
+    class MemberController {
+        + listMembers() : String
+        + showAddForm() : String
+        + saveMember(MemberDTO) : String
+        + viewDetail(Long id) : String
+    }
+
+    class MemberService {
+        + findAll() : List<Member>
+        + save(Member) : void
+        + findById(Long) : Member
+        + toggleStatus(Long id) : void
+    }
+
+    class MemberEntity {
+        - Long id
+        - String fullname
+        - String phone
+        - String email
+        - String status (ACTIVE/SUSPENDED)
+    }
+}
+
+MemberController --> MemberService : calls
+MemberService --> MemberEntity : manages
+
+note right of MemberController
+  This mimics the 'Admin' structure
+  but is accessible by Librarian role.
+end note
+
+@enduml

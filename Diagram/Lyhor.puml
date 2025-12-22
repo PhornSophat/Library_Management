@@ -1,0 +1,26 @@
+@startuml
+title Lyhor: Login & Security Workflow (Activity Diagram)
+
+start
+
+:User enters Username & Password;
+
+if (Credentials Correct?) then (No)
+    #Pink:Show "Access Denied" / Error Message;
+    stop
+else (Yes)
+    :Authenticate User (Session Created);
+    
+    if (User Role?) then (LIBRARIAN)
+        #LightBlue:Redirect to **Admin Dashboard**;
+    else (MEMBER)
+        #LightGreen:Redirect to **Book Listing**;
+    endif
+endif
+
+:User clicks "Log Out";
+:Clear Session;
+:Redirect to Login Page;
+
+stop
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+title Vireak: Backend Integration & Completion (Class Diagram)
+
+' Settings for cleaner look
+hide empty members
+skinparam classBackgroundColor White
+
+package "Vireak's Integration Layer" {
+    
+    class HomeController {
+        + viewDashboard(Model model) : String
+    }
+
+    class "DashboardService" as Dash {
+        + getTotalBooks() : Long
+        + getTotalMembers() : Long
+        + getActiveBorrows() : Long
+        + getRecentTransactions() : List
+    }
+}
+
+package "Team Modules (Dependencies)" {
+    class "BookService\n(Bunarith)" as BookServ {
+        + countAll()
+    }
+    
+    class "MemberService\n(Sophath)" as MemServ {
+        + countActive()
+    }
+    
+    class "BorrowService\n(Mengheang)" as BorrowServ {
+        + countBorrowed()
+    }
+}
+
+' The Logic: Vireak calls everyone's code
+HomeController --> Dash : requests stats
+Dash ..> BookServ : imports
+Dash ..> MemServ : imports
+Dash ..> BorrowServ : imports
+
+note right of HomeController
+  **"Make Completion"**
+    display the final Dashboard
+    by combining everyone's data.
+end note
+
+@enduml
