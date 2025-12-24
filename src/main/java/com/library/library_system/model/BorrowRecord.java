@@ -1,31 +1,27 @@
-package com.library.library_system.borrowing;
+package com.library.library_system.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-@Document(collection = "borrowings")
-public class Borrowing {
+@Document(collection = "borrow_records")
+public class BorrowRecord {
     @Id
     private String id;
     private String memberId;
     private String bookId;
-    private LocalDate borrowDate;
-    private LocalDate dueDate;
-    private LocalDate returnDate;
+    private LocalDateTime borrowDate;
+    private LocalDateTime dueDate;
+    private LocalDateTime returnDate;
     private String status; // BORROWED, RETURNED, OVERDUE
+    private LocalDateTime createdAt;
 
-    public Borrowing() {
-    }
-
-    public Borrowing(String memberId, String bookId, LocalDate borrowDate, LocalDate dueDate) {
-        this.memberId = memberId;
-        this.bookId = bookId;
-        this.borrowDate = borrowDate;
-        this.dueDate = dueDate;
+    public BorrowRecord() {
+        this.createdAt = LocalDateTime.now();
         this.status = "BORROWED";
     }
 
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -50,27 +46,27 @@ public class Borrowing {
         this.bookId = bookId;
     }
 
-    public LocalDate getBorrowDate() {
+    public LocalDateTime getBorrowDate() {
         return borrowDate;
     }
 
-    public void setBorrowDate(LocalDate borrowDate) {
+    public void setBorrowDate(LocalDateTime borrowDate) {
         this.borrowDate = borrowDate;
     }
 
-    public LocalDate getDueDate() {
+    public LocalDateTime getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(LocalDateTime dueDate) {
         this.dueDate = dueDate;
     }
 
-    public LocalDate getReturnDate() {
+    public LocalDateTime getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(LocalDate returnDate) {
+    public void setReturnDate(LocalDateTime returnDate) {
         this.returnDate = returnDate;
     }
 
@@ -82,7 +78,15 @@ public class Borrowing {
         this.status = status;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public boolean isOverdue() {
-        return "BORROWED".equals(status) && LocalDate.now().isAfter(dueDate);
+        return "BORROWED".equals(this.status) && LocalDateTime.now().isAfter(this.dueDate);
     }
 }

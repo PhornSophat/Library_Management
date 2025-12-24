@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .alerts {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #f5c6cb;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .check-info {
+            background-color: #f0f4ff;
+            border: 1px solid #667eea;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .check-info.show {
+            display: block;
+        }
+
+        .check-info.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .check-info.error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-check {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-borrow {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-borrow:hover:not(:disabled) {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-borrow:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .book-info {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .book-info.show {
+            display: block;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .info-value {
+            color: #666;
+        }
+
+        .member-info {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .member-info.show {
+            display: block;
+        }
+
+        .status-suspended {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-active {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Borrow Book</h1>
+        <p class="subtitle">Manage book borrowing for members</p>
+
+        <div class="alerts">
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        </div>
+
+        <form id="borrowForm" onsubmit="return false;">
+            <div class="form-group">
+                <label for="memberId">Select Member:</label>
+                <select id="memberId" required onchange="updateMemberInfo()">
+                    <option value="">-- Choose a member --</option>
+                    <option th:each="member : ${members}" th:value="${member.id}" th:text="${member.name}"></option>
+                </select>
+                <div class="member-info" id="memberInfo">
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value" id="memberEmail">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value" id="memberPhone">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value" id="memberStatus">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bookId">Select Book:</label>
+                <select id="bookId" required onchange="updateBookInfo()">
+                    <option value="">-- Choose a book --</option>
+                    <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title + ' by ' + book.author}"></option>
+                </select>
+                <div class="book-info" id="bookInfo">
+                    <div class="info-row">
+                        <span class="info-label">Author:</span>
+                        <span class="info-value" id="bookAuthor">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ISBN:</span>
+                        <span class="info-value" id="bookIsbn">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Available Copies:</span>
+                        <span class="info-value" id="bookAvailable">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn-check" onclick="checkCanBorrow()">Check Eligibility</button>
+            </div>
+
+            <div class="check-info" id="checkInfo"></div>
+
+            <div class="buttons" id="borrowButtons" style="display: none;">
+                <button type="button" class="btn-borrow" onclick="processBorrow()">Proceed with Borrow</button>
+            </div>
+
+            <div class="buttons">
+                <a href="/" class="btn-back" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Back to Home</a>
+            </div>
+        </form>
+
+        <div class="nav-links">
+            <a href="/borrow/return">Return/Overdue Books</a>
+            <a href="/borrow/history/[memberId]">View Borrow History</a>
+        </div>
+    </div>
+
+    <script>
+        const members = JSON.parse(JSON.stringify([
+            th:each="member : ${members}" {id: [[${member.id}]], name: '[[${member.name}]]', email: '[[${member.email}]]', phone: '[[${member.phone}]]', suspended: [[${member.suspended}]]}
+        ]));
+
+        const books = JSON.parse(JSON.stringify([
+            th:each="book : ${books}" {id: [[${book.id}]], title: '[[${book.title}]]', author: '[[${book.author}]]', isbn: '[[${book.isbn}]]', available: [[${book.availableCopies}]]}
+        ]));
+
+        function updateMemberInfo() {
+            const memberId = document.getElementById('memberId').value;
+            const memberInfo = document.getElementById('memberInfo');
+
+            if (!memberId) {
+                memberInfo.classList.remove('show');
+                return;
+            }
+
+            const memberElement = document.querySelector(`option[value="${memberId}"]`);
+            const parent = memberElement.parentElement;
+            
+            fetch(`/borrow/check?memberId=${memberId}&bookId=`).then(response => response.json()).catch(e => {
+                // Find member data from form
+                const memberData = Array.from(document.getElementById('memberId').options)
+                    .find(opt => opt.value === memberId);
+                
+                document.getElementById('memberEmail').textContent = 'N/A';
+                document.getElementById('memberPhone').textContent = 'N/A';
+                document.getElementById('memberStatus').innerHTML = '<span class="status-active">Active</span>';
+                memberInfo.classList.add('show');
+            });
+
+            memberInfo.classList.add('show');
+        }
+
+        function updateBookInfo() {
+            const bookId = document.getElementById('bookId').value;
+            const bookInfo = document.getElementById('bookInfo');
+
+            if (!bookId) {
+                bookInfo.classList.remove('show');
+                return;
+            }
+
+            bookInfo.classList.add('show');
+        }
+
+        function checkCanBorrow() {
+            const memberId = document.getElementById('memberId').value;
+            const bookId = document.getElementById('bookId').value;
+
+            if (!memberId || !bookId) {
+                showCheckInfo('Please select both member and book', false);
+                return;
+            }
+
+            fetch(`/borrow/check?memberId=${memberId}&bookId=${bookId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const checkInfo = document.getElementById('checkInfo');
+                    const borrowButtons = document.getElementById('borrowButtons');
+                    
+                    if (data.canBorrow) {
+                        showCheckInfo(data.message, true);
+                        borrowButtons.style.display = 'flex';
+                    } else {
+                        showCheckInfo(data.message, false);
+                        borrowButtons.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    showCheckInfo('Error checking eligibility', false);
+                    console.error('Error:', error);
+                });
+        }
+
+        function showCheckInfo(message, success) {
+            const checkInfo = document.getElementById('checkInfo');
+            checkInfo.textContent = message;
+            checkInfo.classList.add('show');
+            checkInfo.classList.toggle('success', success);
+            checkInfo.classList.toggle('error', !success);
+        }
+
+        function processBorrow() {
+            const memberId = document.getElementById('memberId').value;
+            const bookId = document.getElementById('bookId').value;
+            const form = document.getElementById('borrowForm');
+
+            // Create a hidden form to submit
+            const submitForm = document.createElement('form');
+            submitForm.method = 'POST';
+            submitForm.action = '/borrow/process';
+            submitForm.innerHTML = `
+                <input type="hidden" name="memberId" value="${memberId}">
+                <input type="hidden" name="bookId" value="${bookId}">
+            `;
+            document.body.appendChild(submitForm);
+            submitForm.submit();
+        }
+    </script>
+</body>
+</html>

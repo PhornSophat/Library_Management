@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return/Overdue Books</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .alerts {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            margin-right: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .member-section {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .member-section .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .books-section {
+            margin-top: 30px;
+        }
+
+        .books-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .books-table thead {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .books-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .books-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .books-table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-borrowed {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-returned {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .btn-return {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-return:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-return:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .days-overdue {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-back {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .header-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📖 Return/Overdue Books Management</h1>
+        <p class="subtitle">Process book returns and manage overdue items</p>
+
+        <div class="alerts">
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        </div>
+
+        <div class="member-section">
+            <div class="form-group">
+                <label for="memberId">Select Member:</label>
+                <select id="memberId" onchange="loadMemberBorrows()">
+                    <option value="">-- Choose a member --</option>
+                    <option th:each="member : ${members}" th:value="${member.id}" th:text="${member.name}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="books-section" id="booksSection" style="display: none;">
+            <h2>Current Borrowed Books</h2>
+            <table class="books-table" id="booksTable">
+                <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Author</th>
+                        <th>Borrow Date</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="booksTableBody">
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">📭</div>
+                <p>This member has no currently borrowed books</p>
+            </div>
+        </div>
+
+        <div class="header-buttons">
+            <a href="/borrow/book" class="btn-back">← Back to Borrow</a>
+            <a href="/" class="btn-back">← Back to Home</a>
+        </div>
+
+        <div class="nav-links">
+            <a href="/borrow/book">Borrow Book</a>
+        </div>
+    </div>
+
+    <script>
+        const booksTitleMap = new Map([
+            th:each="book : ${books}" ['[[${book.id}]]', '[[${book.title}]]'],
+            th:each="book : ${books}" ['[[${book.id}]]', '[[${book.author}]]']
+        ]);
+
+        function loadMemberBorrows() {
+            const memberId = document.getElementById('memberId').value;
+            
+            if (!memberId) {
+                document.getElementById('booksSection').style.display = 'none';
+                return;
+            }
+
+            fetch(`/borrow/current-borrows/${memberId}`)
+                .then(response => response.json())
+                .then(borrows => {
+                    displayBorrows(borrows);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function displayBorrows(borrows) {
+            const tableBody = document.getElementById('booksTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const booksSection = document.getElementById('booksSection');
+
+            booksSection.style.display = 'block';
+
+            if (!borrows || borrows.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            borrows.forEach(borrow => {
+                const borrowDate = new Date(borrow.borrowDate);
+                const dueDate = new Date(borrow.dueDate);
+                const today = new Date();
+                const isOverdue = today > dueDate;
+
+                const statusClass = isOverdue ? 'status-overdue' : 'status-borrowed';
+                const statusText = isOverdue ? 'OVERDUE' : 'BORROWED';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>Book Title</td>
+                    <td>Author</td>
+                    <td>${borrowDate.toLocaleDateString()}</td>
+                    <td>${dueDate.toLocaleDateString()}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn-return" onclick="returnBook('${borrow.id}')" 
+                                ${borrow.status !== 'BORROWED' ? 'disabled' : ''}>
+                            Return
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function returnBook(borrowRecordId) {
+            if (!confirm('Are you sure you want to return this book?')) {
+                return;
+            }
+
+            // Create a hidden form to submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/borrow/return-process';
+            form.innerHTML = `<input type="hidden" name="borrowRecordId" value="${borrowRecordId}">`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>
