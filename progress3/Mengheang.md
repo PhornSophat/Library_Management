@@ -6,7 +6,7 @@ Borrow Book Page:
 . Select member and book
 . Show member info and book info
 . Check if member can borrow (no overdue or unreturned books)
-. Show due date (14 days)
+. Show due date
 . Save borrow record in localStorage
 . Show messages for success or errors
 
