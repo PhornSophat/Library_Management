@@ -1,0 +1,28 @@
+<div th:fragment="activityFeed(activities)" class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6">
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+            <i class="fa-solid fa-clock-rotate-left text-blue-600"></i>
+            Recent Activities
+        </h2>
+        <span class="text-xs text-gray-500" th:text="${#lists.size(activities)} + ' events'">0 events</span>
+    </div>
+    
+    <div th:if="${activities == null or #lists.isEmpty(activities)}" class="text-center py-8 text-gray-400">
+        <i class="fa-solid fa-inbox text-3xl mb-2"></i>
+        <p class="text-sm">No recent activities</p>
+    </div>
+    
+    <div th:if="${activities != null and !#lists.isEmpty(activities)}" class="space-y-4 max-h-96 overflow-y-auto">
+        <div th:each="activity : ${activities}" class="flex items-start gap-3 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
+            <div class="mt-1 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                 th:classappend="${activity.type == 'member'} ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'">
+                <i class="fa-solid text-sm" 
+                   th:classappend="${activity.type == 'member'} ? 'fa-user-plus' : 'fa-book'"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-900" th:text="${activity.description}">New member registered</p>
+                <p class="text-xs text-gray-500 mt-1" th:text="${activity.timestamp}">2 hours ago</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 package com.library.library_system.model;
 
+<<<<<<< HEAD
 public class Member {
 
     private Long id;
@@ -8,25 +9,26 @@ public class Member {
     private String email;
     private String phone;
 
+=======
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
+
+@Document(collection = "members")
+public class Member {
+    @Id
+    private String id;
+    private String name;
+    private String email;
+    private String phone;
+>>>>>>> 7a9ba538864d4b472065c71cd4b7242122d23a6e
     private Status status;
 
-    // Default constructor (required by JPA)
-    public Member() {}
-
-    // Constructor with fields
-    public Member(String name, String email, String phone, Status status) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.status = status;
-    }
-
     // Getters and setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

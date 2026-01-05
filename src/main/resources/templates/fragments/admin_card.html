@@ -1,0 +1,41 @@
+<div th:fragment="admin-list(title, admins)" 
+     class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 w-full max-w-md">
+    
+    <h3 class="text-center font-extrabold text-2xl text-slate-900 mb-8" 
+        th:text="${title ?: 'System Admins'}">BookWorm Admins</h3>
+    
+    <div class="space-y-4">
+        <div th:if="${admins == null or #lists.isEmpty(admins)}" class="text-center py-4 text-slate-400 font-medium">
+            No administrators found.
+        </div>
+
+        <div th:each="admin : ${admins}" th:if="${admin != null}"
+             class="group flex items-center justify-between border-2 border-slate-900 rounded-2xl p-1 overflow-hidden transition-all hover:shadow-lg">
+            
+            <div class="flex items-center w-full">
+                <div class="bg-slate-900 p-4 rounded-2xl text-white">
+                    <i class="fa-solid fa-user-shield text-xl"></i>
+                </div>
+                
+                <div class="flex-1 bg-slate-100 px-4 py-2 flex flex-col justify-center relative">
+                    <span class="font-bold text-slate-900 text-lg leading-tight" 
+                          th:text="${admin.name ?: 'Unknown Admin'}">Nisal Gunasekara</span>
+                    
+                    <span class="text-xs text-slate-500 font-bold" 
+                          th:text="'Admin ID : ' + ${admin.id ?: 'N/A'}">Admin ID : 1</span>
+                    
+                    <div class="absolute bottom-2 right-4 flex items-center gap-1">
+                        <span class="w-2 h-2 rounded-full" 
+                              th:classappend="${admin.status != null and admin.status.name() == 'ACTIVE' ? 'bg-green-500' : 'bg-slate-900'}"></span>
+                        <span class="text-[10px] font-black uppercase text-slate-900" 
+                              th:text="${admin.status ?: 'ACTIVE'}">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="px-4 text-slate-900 hover:rotate-180 transition-transform duration-500">
+                <i class="fa-solid fa-rotate text-xl"></i>
+            </button>
+        </div>
+    </div>
+</div>

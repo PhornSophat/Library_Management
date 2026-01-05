@@ -1,0 +1,46 @@
+<div th:fragment="stats-card(iconClass, value, label)" 
+     class="flex items-center bg-white p-8 rounded-xl shadow-sm border border-gray-100 w-80 mb-6 last:mb-0 transition-all hover:shadow-md">
+    
+    <div class="bg-gray-200 w-16 h-16 rounded-xl flex items-center justify-center mr-5 shrink-0">
+        <i th:class="${iconClass} + ' text-2xl text-black'"></i>
+    </div>
+    
+    <div class="border-l-2 border-black pl-5 flex flex-col justify-center">
+        <h2 class="text-4xl font-extrabold tracking-tight leading-none text-gray-900" 
+            th:text="${value != null ? #numbers.formatInteger(value, 4) : '----'}">0000</h2>
+        
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1" 
+           th:text="${label}">Label</p>
+    </div>
+</div>
+
+<div th:fragment="stats-card-enhanced(iconClass, value, label, change, trend)" 
+     class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 transition-all hover:shadow-md">
+    
+    <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+             th:classappend="${iconClass} == 'fa-users' ? 'bg-blue-100' : 
+                            (${iconClass} == 'fa-book' ? 'bg-purple-100' : 
+                            (${iconClass} == 'fa-book-open' ? 'bg-green-100' : 'bg-orange-100'))">
+            <i th:class="${iconClass} + ' text-xl'"
+               th:classappend="${iconClass} == 'fa-users' ? 'text-blue-600' : 
+                              (${iconClass} == 'fa-book' ? 'text-purple-600' : 
+                              (${iconClass} == 'fa-book-open' ? 'text-green-600' : 'text-orange-600'))"></i>
+        </div>
+        <div th:if="${change != null}" class="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold"
+             th:classappend="${trend == 'up'} ? 'bg-green-100 text-green-700' : 
+                            (${trend == 'down'} ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700')">
+            <i th:if="${trend == 'up'}" class="fa-solid fa-arrow-up"></i>
+            <i th:if="${trend == 'down'}" class="fa-solid fa-arrow-down"></i>
+            <i th:if="${trend == 'stable'}" class="fa-solid fa-minus"></i>
+            <span th:text="${change}">0%</span>
+        </div>
+    </div>
+    
+    <div>
+        <h3 class="text-3xl font-bold text-gray-900 mb-1" 
+            th:text="${value != null ? value : '0'}">0</h3>
+        <p class="text-sm font-medium text-gray-500" 
+           th:text="${label}">Label</p>
+    </div>
+</div>
