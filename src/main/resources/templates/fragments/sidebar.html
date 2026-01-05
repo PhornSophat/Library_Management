@@ -1,8 +1,8 @@
-<div th:fragment="sidebar" class="fixed left-0 top-0 w-64 bg-gray-900 text-white h-screen p-4 z-50">
+<div th:fragment="sidebar" class="fixed left-0 top-0 w-64 bg-gray-900 text-white h-screen p-4 z-50 flex flex-col">
     <div class="w-full text-2xl font-bold mb-8 text-center text-white border-b border-gray-800 pb-4">
         Library Admin
     </div>
-    <nav class="space-y-2">
+    <nav class="space-y-2 flex-1">
         <a th:href="@{/}" 
             class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 gap-x-2"
             th:classappend="${activePage == 'dashboard' ? 
@@ -30,4 +30,14 @@
             <span>Books</span>
         </a>
     </nav>
+    
+    <!-- Logout Section -->
+    <div class="border-t border-gray-800 pt-4 mt-4">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="w-full flex items-center px-4 py-3 rounded-lg transition-all duration-200 gap-x-2 text-gray-400 hover:bg-red-600 hover:text-white">
+                <i class="fa-solid fa-sign-out-alt w-5 text-center"></i>
+                <span>Logout</span>
+            </button>
+        </form>
+    </div>
 </div>

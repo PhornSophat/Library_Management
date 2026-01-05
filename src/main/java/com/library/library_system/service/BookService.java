@@ -73,4 +73,8 @@ public class BookService {
             .filter(book -> status.equals(book.getStatus()))
             .collect(java.util.stream.Collectors.toList());
     }
+
+    public List<Book> getAvailableBooks() {
+        return filterBooksByStatus("AVAILABLE");
+    }
 }

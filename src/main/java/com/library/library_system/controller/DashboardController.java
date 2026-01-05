@@ -137,7 +137,7 @@ public class DashboardController {
         model.addAttribute("userName", "Nisal Gunasekara");
         model.addAttribute("activePage", "members");
         model.addAttribute("user", new User());
-        return "fragments/add_member";
+        return "dashboard/add_member";
     }
 
     @PostMapping("/members/add")
@@ -384,4 +384,5 @@ public class DashboardController {
             return "redirect:/?status=error";
         }
     }
+
 }

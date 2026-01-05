@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Library System | Login</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Segoe UI", Arial, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif; }
 
     body {
       margin: 0;
@@ -17,87 +14,105 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #4f46e5, #22c1c3);
+      background: linear-gradient(135deg, #e6eefb, #cdeef7);
+      padding: 30px;
     }
 
     .login-wrapper {
       display: flex;
-      width: 900px;
-      max-width: 95%;
+      width: 1000px;
+      max-width: 98%;
       background: #fff;
-      border-radius: 18px;
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.18);
     }
 
     /* LEFT SIDE */
     .login-info {
-      flex: 1;
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      flex: 1.1;
+      background: linear-gradient(135deg, #5563f6, #6d28d9);
       color: #fff;
-      padding: 60px 40px;
+      padding: 80px 60px;
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
 
     .login-info h1 {
-      font-size: 32px;
-      margin-bottom: 15px;
+      font-size: 40px;
+      margin: 0 0 12px 0;
+      line-height: 1.04;
+      font-weight: 700;
     }
 
     .login-info p {
-      font-size: 15px;
+      font-size: 16px;
       line-height: 1.6;
-      opacity: 0.9;
+      opacity: 0.95;
+      margin: 0;
     }
 
     /* RIGHT SIDE */
     .login-form {
       flex: 1;
-      padding: 50px 40px;
+      padding: 56px 60px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      background: #fff;
     }
 
     .login-form h2 {
-      font-size: 26px;
-      margin-bottom: 8px;
+      font-size: 28px;
+      margin-bottom: 6px;
+      font-weight: 700;
     }
 
     .subtitle {
       font-size: 14px;
-      color: #666;
-      margin-bottom: 30px;
+      color: #6b7280;
+      margin-bottom: 20px;
     }
 
-    .input-group {
-      margin-bottom: 18px;
-    }
+    .input-group { margin-bottom: 18px; }
 
-    label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 6px;
-      color: #333;
-    }
+    label { display: block; font-size: 13px; margin-bottom: 8px; color: #374151; }
 
-    input[type="text"],
-    input[type="password"] {
+    input[type="email"], input[type="password"], input[type="text"] {
       width: 100%;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-radius: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #e6e6e6;
       font-size: 14px;
+      background: #fff;
     }
 
-    input:focus {
-      outline: none;
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
-    }
+    input:focus { outline: none; border-color: #6d28d9; box-shadow: 0 8px 24px rgba(109,40,217,0.08); }
 
+    .options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; font-size: 14px; }
+
+    .remember { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .remember input { width: 18px; height: 18px; }
+
+    .options a { text-decoration: none; color: #6d28d9; font-size: 13px; }
+
+    button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(90deg, #6d28d9, #7c3aed); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(109,40,217,0.18); }
+    button:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(109,40,217,0.22); }
+
+    .footer-text { margin-top: 18px; text-align: center; font-size: 13px; color: #9ca3af; }
+
+    .form-divider { margin: 20px 0 6px; border-top: 1px solid #e5e7eb; }
+
+    .signup-link { color: #6d28d9; text-decoration: none; font-weight: 600; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .login-wrapper { flex-direction: column; width: 96%; }
+      .login-info { text-align: center; padding: 40px 28px; border-radius: 18px 18px 0 0; }
+      .login-form { padding: 32px 28px; }
+      .login-info h1 { font-size: 28px; }
+    }
     /* REMEMBER ME FIX */
     .options {
       display: flex;
@@ -181,27 +196,38 @@
       <h2>Welcome Back</h2>
       <p class="subtitle">Login to borrow books</p>
 
-      <form>
+      <form th:action="@{/login}" method="post">
         <div class="input-group">
-          <label>Student ID / Email</label>
-          <input type="text" placeholder="Enter your ID or email" required>
+          <label>Email</label>
+          <input type="email" name="email" placeholder="Enter your email" required>
         </div>
 
         <div class="input-group">
           <label>Password</label>
-          <input type="password" placeholder="Enter your password" required>
+          <input type="password" name="password" placeholder="Enter your password" required>
         </div>
 
         <div class="options">
           <label class="remember">
-            <input type="checkbox">
+            <input type="checkbox" name="remember-me">
             <span>Remember me</span>
           </label>
           <a href="#">Forgot password?</a>
         </div>
 
         <button type="submit">Login</button>
+
+        <p class="footer-text" th:if="${success}" th:text="${success}" style="color: green;"></p>
+        <p class="footer-text" th:if="${error}" th:text="${error}" style="color: red;"></p>
+        <p class="footer-text" th:if="${param.error}" style="color: red;">Invalid credentials. Please try again.</p>
+        <p class="footer-text" th:if="${param.logout}" style="color: green;">You have been logged out.</p>
       </form>
+
+      <div class="form-divider"></div>
+      <div class="footer-text" style="margin-top: 12px;">
+        Don't have an account?
+        <a th:href="@{/signup}" class="signup-link">Sign Up</a>
+      </div>
 
       <p class="footer-text">© 2026 Library System</p>
     </div>

@@ -4,7 +4,7 @@
             <i class="fa-solid fa-clock-rotate-left text-blue-600"></i>
             Recent Activities
         </h2>
-        <span class="text-xs text-gray-500" th:text="${#lists.size(activities)} + ' events'">0 events</span>
+        <span class="text-xs text-gray-500" th:text="${activities != null ? #lists.size(activities) : 0} + ' events'">0 events</span>
     </div>
     
     <div th:if="${activities == null or #lists.isEmpty(activities)}" class="text-center py-8 text-gray-400">
@@ -15,14 +15,21 @@
     <div th:if="${activities != null and !#lists.isEmpty(activities)}" class="space-y-4 max-h-96 overflow-y-auto">
         <div th:each="activity : ${activities}" class="flex items-start gap-3 pb-4 border-b border-gray-50 last:border-0 last:pb-0">
             <div class="mt-1 w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                 th:classappend="${activity.type == 'member'} ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'">
+                 th:classappend="${activity.type == 'member'} ? 'bg-blue-100 text-blue-600' : (${activity.type == 'book'} ? 'bg-green-100 text-green-600' : 'bg-purple-100 text-purple-600')">
                 <i class="fa-solid text-sm" 
-                   th:classappend="${activity.type == 'member'} ? 'fa-user-plus' : 'fa-book'"></i>
+                   th:classappend="${activity.type == 'member'} ? 'fa-user-plus' : (${activity.type == 'book'} ? 'fa-book' : 'fa-exchange-alt')"></i>
             </div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-semibold text-gray-900" th:text="${activity.description}">New member registered</p>
-                <p class="text-xs text-gray-500 mt-1" th:text="${activity.timestamp}">2 hours ago</p>
+                <p class="text-sm font-semibold text-gray-900" th:text="${activity.description}">Activity description</p>
+                <p class="text-xs text-gray-500 mt-1" th:text="${activity.timestamp}">Recently</p>
             </div>
         </div>
+    </div>
+    
+    <div class="mt-4 pt-4 border-t border-gray-50">
+        <a th:href="@{/members}" class="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+            <span>View all members</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
     </div>
 </div>

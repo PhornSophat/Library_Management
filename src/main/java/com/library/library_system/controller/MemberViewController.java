@@ -1,15 +1,14 @@
 package com.library.library_system.controller;
 
+// Legacy controller disabled; routes handled elsewhere.
 import com.library.model.Member;
 import com.library.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@Controller
 public class MemberViewController {
 
     private final MemberRepository memberRepository;

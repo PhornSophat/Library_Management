@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Books - Library Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="bg-[#F8F9FA] overflow-x-hidden font-sans antialiased text-gray-900">
@@ -36,7 +36,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">Books</h1>
                     <p class="text-sm text-gray-500 mt-1">Manage library book catalog</p>
                 </div>
-                <a href="/books/add" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2">
+                <a th:href="@{/books/add}" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2">
                     <i class="fa-solid fa-plus"></i>
                     Add Book
                 </a>
@@ -83,7 +83,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-50 p-6 mb-6">
                 <div class="flex flex-col md:flex-row gap-4">
                     <!-- Search Bar -->
-                    <form action="/books" method="get" class="flex-1">
+                    <form th:action="@{/books}" method="get" class="flex-1">
                         <div class="relative">
                             <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <input type="text" 
@@ -99,22 +99,22 @@
                     
                     <!-- Filter Buttons -->
                     <div class="flex gap-2">
-                        <a href="/books" 
+                        <a th:href="@{/books}" 
                            class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
                            th:classappend="${filterStatus == null && searchQuery == null} ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
                             All
                         </a>
-                        <a href="/books?status=AVAILABLE" 
+                        <a th:href="@{/books(status='AVAILABLE')}" 
                            class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
                            th:classappend="${filterStatus == 'AVAILABLE'} ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
                             Available
                         </a>
-                        <a href="/books?status=BORROWED" 
+                        <a th:href="@{/books(status='BORROWED')}" 
                            class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
                            th:classappend="${filterStatus == 'BORROWED'} ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
                             Borrowed
                         </a>
-                        <a href="/books?status=RETURNED" 
+                        <a th:href="@{/books(status='RETURNED')}" 
                            class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
                            th:classappend="${filterStatus == 'RETURNED'} ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
                             Returned

@@ -4,7 +4,7 @@
         Quick Actions
     </h2>
     <div class="grid grid-cols-2 gap-3">
-        <a href="/members/add" class="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors group">
+        <a th:href="@{/members/add}" class="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors group">
             <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
                 <i class="fa-solid fa-user-plus"></i>
             </div>
@@ -13,7 +13,7 @@
                 <p class="text-xs text-gray-500">Register new</p>
             </div>
         </a>
-        <a href="/books/add" class="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors group">
+        <a th:href="@{/books/add}" class="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 rounded-xl transition-colors group">
             <div class="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center text-white">
                 <i class="fa-solid fa-book-medical"></i>
             </div>
@@ -22,22 +22,22 @@
                 <p class="text-xs text-gray-500">New entry</p>
             </div>
         </a>
-        <a href="/members" class="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors group">
+        <a th:href="@{/books(status='AVAILABLE')}" class="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-colors group">
             <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-users"></i>
+                <i class="fa-solid fa-book-open"></i>
             </div>
             <div>
-                <p class="font-semibold text-sm text-gray-900">View Members</p>
-                <p class="text-xs text-gray-500">Manage all</p>
+                <p class="font-semibold text-sm text-gray-900">Borrow Book</p>
+                <p class="text-xs text-gray-500">Available books</p>
             </div>
         </a>
-        <a href="/books" class="flex items-center gap-3 p-4 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group">
+        <a th:href="@{/books(status='BORROWED')}" class="flex items-center gap-3 p-4 bg-orange-50 hover:bg-orange-100 rounded-xl transition-colors group">
             <div class="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center text-white">
-                <i class="fa-solid fa-book"></i>
+                <i class="fa-solid fa-rotate-left"></i>
             </div>
             <div>
-                <p class="font-semibold text-sm text-gray-900">View Books</p>
-                <p class="text-xs text-gray-500">Browse catalog</p>
+                <p class="font-semibold text-sm text-gray-900">Return Book</p>
+                <p class="text-xs text-gray-500">Borrowed books</p>
             </div>
         </a>
     </div>

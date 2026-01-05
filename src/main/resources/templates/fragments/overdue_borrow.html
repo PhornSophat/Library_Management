@@ -15,34 +15,35 @@
             <p class="text-gray-400 text-sm font-medium">No overdue items found.</p>
         </div>
 
-        <div th:each="item : ${items}" th:if="${item != null}"
-             class="group flex items-center justify-between bg-white border border-gray-100 rounded-[1.5rem] p-5 
-                    hover:border-blue-300 hover:shadow-xl hover:shadow-blue-100/40 transition-all duration-300 cursor-pointer">
+        <a th:each="item : ${items}" th:if="${item != null}"
+           th:href="@{'/members/' + ${item.id}}"
+           class="group flex items-center justify-between bg-white border border-gray-100 rounded-[1.5rem] p-5 
+                  hover:border-red-300 hover:shadow-xl hover:shadow-red-100/40 transition-all duration-300 cursor-pointer block">
             
             <div class="flex items-center gap-5">
-                <div class="bg-gray-50 p-4 rounded-2xl group-hover:bg-blue-50 transition-colors">
-                    <i class="fas fa-user text-gray-400 group-hover:text-blue-600 text-lg"></i>
+                <div class="bg-red-50 p-4 rounded-2xl group-hover:bg-red-100 transition-colors">
+                    <i class="fas fa-user-clock text-red-500 group-hover:text-red-600 text-lg"></i>
                 </div>
                 
                 <div class="flex flex-col gap-1">
-                    <span class="text-base font-bold text-gray-800 group-hover:text-blue-700 transition-colors" 
+                    <span class="text-base font-bold text-gray-800 group-hover:text-red-700 transition-colors" 
                           th:text="${item.name ?: 'Unknown Member'}">Member Name</span>
                     
                     <div class="flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
                         <span class="text-xs text-gray-500 font-semibold tracking-wide" 
-                              th:text="'BORROWED ID: ' + ${item.id ?: 'N/A'}">BORROWED ID: N/A</span>
+                              th:text="'Member ID: ' + ${item.id ?: 'N/A'}">Member ID: N/A</span>
                     </div>
                 </div>
             </div>
 
-            <button class="bg-gray-50 text-gray-400 group-hover:text-blue-600 group-hover:bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300">
+            <div class="bg-gray-50 text-gray-400 group-hover:text-red-600 group-hover:bg-red-100 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300">
                 <i class="fas fa-arrow-right text-sm"></i>
-            </button>
-        </div>
+            </div>
+        </a>
     </div>
     
-    <button class="w-full mt-8 py-4 text-sm font-black text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all border-t border-gray-50 pt-6 tracking-widest uppercase">
+    <a th:href="@{/members(status='Overdue')}" class="block w-full mt-8 py-4 text-sm font-black text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all border-t border-gray-50 pt-6 tracking-widest uppercase text-center">
         View Full Report
-    </button>
+    </a>
 </div>

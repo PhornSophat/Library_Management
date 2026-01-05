@@ -10,6 +10,7 @@ public class Loan {
     private String id;
     private String bookId;
     private String bookTitle;
+    private String bookAuthor; // Author of the borrowed book
     private String memberId;
     private String memberName;
     private LocalDate borrowDate;
@@ -23,6 +24,8 @@ public class Loan {
     public void setBookId(String bookId) { this.bookId = bookId; }
     public String getBookTitle() { return bookTitle; }
     public void setBookTitle(String bookTitle) { this.bookTitle = bookTitle; }
+    public String getBookAuthor() { return bookAuthor; }
+    public void setBookAuthor(String bookAuthor) { this.bookAuthor = bookAuthor; }
     public String getMemberId() { return memberId; }
     public void setMemberId(String memberId) { this.memberId = memberId; }
     public String getMemberName() { return memberName; }

@@ -1,26 +1,16 @@
 package com.library.library_system.model;
 
-<<<<<<< HEAD
-public class Member {
-
-    private Long id;
-
-    private String name;
-    private String email;
-    private String phone;
-
-=======
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "members")
 public class Member {
+
     @Id
     private String id;
     private String name;
     private String email;
     private String phone;
->>>>>>> 7a9ba538864d4b472065c71cd4b7242122d23a6e
     private Status status;
 
     // Getters and setters

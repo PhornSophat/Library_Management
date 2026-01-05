@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Browse Library - Library Portal</title>
+    <link rel="stylesheet" th:href="@{/css/output.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/member/home}" class="text-gray-400 hover:text-indigo-600 transition-colors">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </a>
+                    <i class="fa-solid fa-book-open text-3xl text-indigo-600"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Library Collection</h1>
+                        <p class="text-sm text-gray-500">Browse available books</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <div class="text-right">
+                        <p class="text-sm font-semibold text-gray-700" th:text="${member.name}">Member Name</p>
+                        <p class="text-xs text-gray-500">Member</p>
+                    </div>
+                    <div class="relative">
+                        <button class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-lg hover:bg-indigo-700 transition-colors">
+                            <span th:text="${member.name != null ? member.name.substring(0,1).toUpperCase() : 'M'}">M</span>
+                        </button>
+                    </div>
+                    <form th:action="@{/logout}" method="post" class="inline">
+                        <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Total Books</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${totalBooks}">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-books text-indigo-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-600">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Available Now</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1" th:text="${availableCount}">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-check-circle text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-600">
+                <a th:href="@{/member/home}" class="flex items-center justify-between hover:opacity-80 transition-opacity">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">My Dashboard</p>
+                        <p class="text-lg font-bold text-purple-600 mt-1">View Loans →</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-home text-purple-600 text-xl"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <form th:action="@{/member/library}" method="get" class="flex gap-4">
+                <div class="flex-1 relative">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" name="search" th:value="${searchQuery}" 
+                           placeholder="Search by title, author, or category..."
+                           class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                </div>
+                <button type="submit" class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-search"></i>
+                    Search
+                </button>
+                <a th:href="@{/member/library}" class="px-6 py-3 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2">
+                    <i class="fa-solid fa-refresh"></i>
+                    Reset
+                </a>
+            </form>
+        </div>
+
+        <!-- Books Grid -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="p-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                <h3 class="text-2xl font-bold flex items-center gap-3">
+                    <i class="fa-solid fa-book"></i>
+                    Available Books
+                </h3>
+                <p class="text-indigo-100 mt-1">Books ready for borrowing</p>
+            </div>
+            
+            <div class="p-6">
+                <div th:if="${books != null and !books.isEmpty()}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <a th:each="book : ${books}" th:href="@{/member/book/{id}(id=${book.id})}" class="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-lg hover:border-indigo-300 transition-all cursor-pointer block">
+                            <div class="flex items-start gap-4">
+                                <div class="w-16 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fa-solid fa-book text-white text-2xl"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-lg font-bold text-gray-900 truncate" th:text="${book.title}">Book Title</h4>
+                                    <p class="text-gray-600 text-sm mt-1">
+                                        <i class="fa-solid fa-user mr-1"></i>
+                                        <span th:text="${book.author}">Author</span>
+                                    </p>
+                                    <p class="text-gray-500 text-xs mt-1">
+                                        <i class="fa-solid fa-folder mr-1"></i>
+                                        <span th:text="${book.category ?: 'General'}">Category</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center justify-between">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                    <i class="fa-solid fa-check-circle mr-1"></i>
+                                    Available
+                                </span>
+                                <span class="text-xs text-gray-400">
+                                    <i class="fa-solid fa-chart-line mr-1"></i>
+                                    Borrowed <span th:text="${book.borrowCount ?: 0}">0</span>x
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${books == null or books.isEmpty()}" class="text-center py-16">
+                    <i class="fa-solid fa-book-open text-gray-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500 text-lg font-medium">No books found</p>
+                    <p class="text-gray-400 text-sm mt-2" th:if="${searchQuery != null}">Try a different search term</p>
+                    <p class="text-gray-400 text-sm mt-2" th:if="${searchQuery == null}">All books are currently borrowed</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
+            <h4 class="text-lg font-bold text-blue-800 flex items-center gap-2 mb-3">
+                <i class="fa-solid fa-info-circle"></i>
+                How to Borrow Books
+            </h4>
+            <div class="text-blue-700 space-y-2">
+                <p class="flex items-start gap-2">
+                    <i class="fa-solid fa-1 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5"></i>
+                    <span>Find a book you'd like to borrow from our collection above</span>
+                </p>
+                <p class="flex items-start gap-2">
+                    <i class="fa-solid fa-2 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5"></i>
+                    <span>Visit our library desk or contact the librarian</span>
+                </p>
+                <p class="flex items-start gap-2">
+                    <i class="fa-solid fa-3 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0 mt-0.5"></i>
+                    <span>Present your Member ID to complete the borrowing process</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="max-w-7xl mx-auto px-6 py-8 text-center text-gray-500">
+        <p>&copy; 2026 Library Management System. All rights reserved.</p>
+    </div>
+</body>
+</html>

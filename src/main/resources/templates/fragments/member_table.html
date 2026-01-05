@@ -29,9 +29,9 @@
                           th:text="${user.role ?: 'MEMBER'}">ROLE</span>
                 </td>
                 <td class="px-8 py-5">
-                    <span th:classappend="${user.status != null and user.status.toString() == 'ACTIVE' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}"
+                    <span th:classappend="${user.status != null and (user.status.toString() == 'Active' or user.status.toString() == 'ACTIVE') ? 'bg-green-100 text-green-600' : (user.status != null and user.status.toString() == 'Overdue' ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600')}"
                           class="text-[14px] font-black uppercase px-3 py-1 rounded-full"
-                          th:text="${user.status ?: 'INACTIVE'}">STATUS</span>
+                          th:text="${user.status ?: 'Inactive'}">STATUS</span>
                 </td>
                 <td class="px-8 py-5">
                     <a th:href="@{'/members/' + ${user.id}}" class="text-blue-600 hover:text-blue-700 font-semibold text-sm">View</a>

@@ -33,6 +33,7 @@ public class LoanService {
                 Loan loan = new Loan();
                 loan.setBookId(book.getId());
                 loan.setBookTitle(book.getTitle());
+                loan.setBookAuthor(book.getAuthor());
                 loan.setMemberId(member.getId());
                 loan.setMemberName(member.getName());
                 loan.setBorrowDate(LocalDate.now());
@@ -75,5 +76,9 @@ public class LoanService {
 
     public Optional<Loan> getActiveLoanForBook(String bookId) {
         return loanRepository.findByBookIdAndStatus(bookId, "BORROWED").stream().findFirst();
+    }
+
+    public List<Loan> getAllActiveLoans() {
+        return loanRepository.findByStatus("BORROWED");
     }
 }

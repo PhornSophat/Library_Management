@@ -13,6 +13,9 @@ public interface UserRepository extends MongoRepository<User, String> {
     // We use Optional in case a user with that name doesn't exist
     Optional<User> findByName(String name);
 
+    // Authentication lookup by email/username
+    Optional<User> findByEmail(String email);
+
     // Filter by Role (Admin or Member)
     List<User> findByRole(User.Role role);
     

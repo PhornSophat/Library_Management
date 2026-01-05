@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -508,8 +508,8 @@
 
         <!-- NAVIGATION LINKS -->
         <div class="nav-links">
-            <a href="BorrowBook.html">📥 Borrow Book</a>
-            <a href="/">🏠 Back to Home</a>
+            <a th:href="@{/borrow}">📥 Borrow Book</a>
+            <a th:href="@{/}">🏠 Back to Home</a>
         </div>
     </div>
 

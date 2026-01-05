@@ -6,12 +6,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // Fetch only Admins for the Admin Card component
     public List<User> getAdmins() {
@@ -45,13 +49,17 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public java.util.Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public boolean updateAdminPassword(String name, String oldPwd, String newPwd) {
-    // findByName now returns Optional<User> to prevent NullPointerExceptions
+        // findByName now returns Optional<User> to prevent NullPointerExceptions
         return userRepository.findByName(name)
             .map(admin -> {
                 // Validate the current password matches before saving new one
-                if (admin.getPassword().equals(oldPwd)) {
-                    admin.setPassword(newPwd);
+                if (passwordEncoder.matches(oldPwd, admin.getPassword())) {
+                    admin.setPassword(passwordEncoder.encode(newPwd));
                     userRepository.save(admin);
                     return true;
                 }
@@ -61,11 +69,17 @@ public class UserService {
 
     // Create a new user (member)
     public User createUser(User user) {
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
     // Update an existing user (member)
     public User updateUser(User user) {
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
         return userRepository.save(user);
     }
 
