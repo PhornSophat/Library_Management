@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-[#F8F9FA] overflow-x-hidden font-sans antialiased text-gray-900">
+    <aside class="fixed top-0 left-0 h-screen w-64 z-50">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    </aside>
+
+    <div class="flex flex-col min-h-screen pl-64">
+        
+        <nav class="fixed top-0 right-0 left-64 h-16 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100">
+            <div th:replace="~{fragments/navigation :: navigation}"></div>
+        </nav>
+
+        <main class="p-10 mt-16 mx-auto w-full">
+            <!-- Success Message -->
+            <div th:if="${successMessage}" class="mb-6 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-check-circle"></i>
+                <span th:text="${successMessage}">Success message</span>
+            </div>
+
+            <!-- Error Message -->
+            <div th:if="${errorMessage}" class="mb-6 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}">Error message</span>
+            </div>
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Members</h1>
+                    <p class="text-sm text-gray-500 mt-1">Manage library members</p>
+                </div>
+                <a href="/members/add" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors duration-200 flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i>
+                    Add Member
+                </a>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-50 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Members</p>
+                            <p class="text-3xl font-bold text-gray-900 mt-2" th:text="${totalMembers}">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-users text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-50 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Active Members</p>
+                            <p class="text-3xl font-bold text-green-600 mt-2" th:text="${activeMembers}">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-user-check text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-50 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Inactive Members</p>
+                            <p class="text-3xl font-bold text-gray-600 mt-2" th:text="${inactiveMembers}">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-user-xmark text-gray-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-50 p-6 mb-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Search Bar -->
+                    <form action="/members" method="get" class="flex-1">
+                        <div class="relative">
+                            <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" 
+                                   name="search" 
+                                   th:value="${searchQuery}"
+                                   placeholder="Search by name or email..." 
+                                   class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-md transition-colors">
+                                Search
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Filter Buttons -->
+                    <div class="flex gap-2">
+                        <a href="/members" 
+                           class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
+                           th:classappend="${filterStatus == null && searchQuery == null} ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                            All
+                        </a>
+                        <a href="/members?status=Active" 
+                           class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
+                           th:classappend="${filterStatus == 'Active'} ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                            Active
+                        </a>
+                        <a href="/members?status=Inactive" 
+                           class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
+                           th:classappend="${filterStatus == 'Inactive'} ? 'bg-gray-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                            Inactive
+                        </a>
+                        <a href="/members?status=Overdue" 
+                           class="px-4 py-3 rounded-lg font-semibold text-sm transition-colors"
+                           th:classappend="${filterStatus == 'Overdue'} ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'">
+                            Overdue
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+           <div class="bg-white rounded-[2rem] shadow-sm border border-gray-50 overflow-hidden">
+                <div th:replace="~{fragments/member_table :: memberContent(${membersList})}"></div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

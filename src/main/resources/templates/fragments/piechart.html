@@ -1,0 +1,74 @@
+<div th:fragment="book-stats-chart" class="flex flex-col items-center justify-center">
+    
+    <div class="relative w-64 h-64 mb-6">
+        <canvas id="bookPieChart"></canvas>
+    </div>
+
+    <div class="bg-white px-6 py-4 rounded-2xl shadow-sm flex items-center gap-4 border border-gray-50">
+        <div class="pr-4 border-r border-gray-100">
+            <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                <i class="fa-solid fa-chart-pie"></i>
+            </div>
+        </div>
+        
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#3D3D3D]"></span>
+                <span class="text-[11px] font-bold text-gray-600">Borrowed: <span th:text="${borrowedBooks ?: 0}">0</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#121212]"></span>
+                <span class="text-[11px] font-bold text-gray-600">Returned: <span th:text="${returnedBooks ?: 0}">0</span></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#71717A]"></span>
+                <span class="text-[11px] font-bold text-gray-600">Available: <span th:text="${notBorrowed ?: 0}">0</span></span>
+            </div>
+        </div>
+    </div>
+
+   <script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('bookPieChart');
+        if (!ctx) return;
+
+        // Uses Thymeleaf comments to safely inject values or default to 0
+        const borrowed = /*[[${borrowedBooks}]]*/ 0;
+        const returned = /*[[${returnedBooks}]]*/ 0;
+        const available = /*[[${notBorrowed}]]*/ 0;
+
+        // If all data is 0, we can show a 'No Data' state in the chart
+        const chartData = (borrowed === 0 && returned === 0 && available === 0) 
+            ? [0, 0, 0, 1] // Add a 4th value for an 'Empty' gray ring
+            : [borrowed, returned, available];
+
+        const chartColors = (borrowed === 0 && returned === 0 && available === 0)
+            ? ['#F3F4F6'] // Light gray for empty state
+            : ['#3D3D3D', '#121212', '#71717A'];
+
+        new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Borrowed', 'Returned', 'Available', 'No Data'],
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: chartColors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '80%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        // Disable tooltip if there is no real data
+                        enabled: !(borrowed === 0 && returned === 0 && available === 0)
+                    }
+                }
+            }
+        });
+    });
+</script>
+</div>

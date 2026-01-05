@@ -1,8 +1,15 @@
 package com.library.library_system.repository;
 
-import com.library.library_system.model.Member;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
-public interface MemberRepository extends JpaRepository<Member, Long> {}
+import org.springframework.data.mongodb.repository.MongoRepository;
+import com.library.library_system.model.Member;
+import com.library.library_system.model.Member.Status;
+
+public interface MemberRepository extends MongoRepository<Member, String> {
+    // Change from findById to findByStatus
+    List<Member> findByStatus(Member.Status status);
+
+    // Spring Data magic: find the first 3 members where status equals the parameter
+    List<Member> findFirst3ByStatus(Status status);
+}

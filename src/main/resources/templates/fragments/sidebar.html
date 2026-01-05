@@ -1,0 +1,33 @@
+<div th:fragment="sidebar" class="fixed left-0 top-0 w-64 bg-gray-900 text-white h-screen p-4 z-50">
+    <div class="w-full text-2xl font-bold mb-8 text-center text-white border-b border-gray-800 pb-4">
+        Library Admin
+    </div>
+    <nav class="space-y-2">
+        <a th:href="@{/}" 
+            class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 gap-x-2"
+            th:classappend="${activePage == 'dashboard' ? 
+                'bg-white text-black shadow-lg font-bold' : 
+                'text-gray-400 hover:bg-gray-800 hover:text-white'}">
+            <i class="fa-solid fa-grip w-5 text-center"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a th:href="@{/members}" 
+            class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 gap-x-2"
+            th:classappend="${activePage == 'members' ? 
+                'bg-white text-black shadow-lg font-bold' : 
+                'text-gray-400 hover:bg-gray-800 hover:text-white'}">
+            <i class="fa-solid fa-users w-5 text-center"></i>
+            <span>Members</span>
+        </a>
+
+        <a th:href="@{/books}" 
+            class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 gap-x-2"
+            th:classappend="${activePage == 'books' ? 
+                'bg-white text-black shadow-lg font-bold' : 
+                'text-gray-400 hover:bg-gray-800 hover:text-white'}">
+            <i class="fa-solid fa-book w-5 text-center"></i>
+            <span>Books</span>
+        </a>
+    </nav>
+</div>

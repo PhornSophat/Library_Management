@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Member Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-[#F8F9FA] overflow-x-hidden font-sans antialiased text-gray-900">
+    <aside class="fixed top-0 left-0 h-screen w-64 z-50">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    </aside>
+
+    <div class="flex flex-col min-h-screen pl-64">
+        <nav class="fixed top-0 right-0 left-64 h-16 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100">
+            <div th:replace="~{fragments/navigation :: navigation}"></div>
+        </nav>
+
+        <main class="p-10 mt-16 mx-auto w-full max-w-6xl">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <a href="/members" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900" th:text="${member.name}">Member Name</h1>
+                        <p class="text-sm text-gray-500 mt-1" th:text="${member.email}">email@example.com</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-4 py-2 rounded-full text-sm font-semibold"
+                          th:classappend="${member.status == T(com.library.library_system.model.User.Status).Active} ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'"
+                          th:text="${member.status}">Active</span>
+                    <button onclick="document.getElementById('deleteModal').classList.remove('hidden')"
+                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-check-circle"></i>
+                <span th:text="${successMessage}">Success message</span>
+            </div>
+            <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}">Error message</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Profile Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6 lg:col-span-1">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl"
+                             th:text="${member.name != null && !#strings.isEmpty(member.name) ? #strings.substring(member.name,0,1) : 'U'}">U</div>
+                        <div>
+                            <p class="text-sm text-gray-500">Member ID</p>
+                            <p class="font-semibold text-gray-900" th:text="${member.id}">123</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-sm text-gray-700">
+                        <div class="flex justify-between"><span class="text-gray-500">Role</span><span class="font-semibold" th:text="${member.role}">MEMBER</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="font-semibold" th:text="${member.status}">Active</span></div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6 lg:col-span-2">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">Update Member</h2>
+                    <form th:action="@{'/members/' + ${member.id} + '/update'}" method="post" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                                <input name="name" type="text" required th:value="${member.name}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                <input name="email" type="email" required th:value="${member.email}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Password (leave blank to keep)</label>
+                                <input name="password" type="password" placeholder="••••••"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
+                                    <select name="role" class="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option th:selected="${member.role == T(com.library.library_system.model.User.Role).MEMBER}" th:value="${T(com.library.library_system.model.User.Role).MEMBER}">Member</option>
+                                        <option th:selected="${member.role == T(com.library.library_system.model.User.Role).ADMIN}" th:value="${T(com.library.library_system.model.User.Role).ADMIN}">Admin</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                    <select name="status" class="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option th:selected="${member.status == T(com.library.library_system.model.User.Status).Active}" th:value="${T(com.library.library_system.model.User.Status).Active}">Active</option>
+                                        <option th:selected="${member.status == T(com.library.library_system.model.User.Status).Inactive}" th:value="${T(com.library.library_system.model.User.Status).Inactive}">Inactive</option>
+                                        <option th:selected="${member.status == T(com.library.library_system.model.User.Status).Overdue}" th:value="${T(com.library.library_system.model.User.Status).Overdue}">Overdue</option>
+                                        <option th:selected="${member.status == T(com.library.library_system.model.User.Status).Suspended}" th:value="${T(com.library.library_system.model.User.Status).Suspended}">Suspended</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                Save Changes
+                            </button>
+                            <a href="/members" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors">Back to list</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Loans -->
+            <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-50 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold text-gray-900">Loans</h2>
+                    <span class="text-sm text-gray-500" th:text="${#lists.size(loans)} + ' loans'">0 loans</span>
+                </div>
+                <div th:if="${#lists.isEmpty(loans)}" class="text-gray-500 text-sm py-4">No loans recorded for this member.</div>
+                <div th:if="${!#lists.isEmpty(loans)}" class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-gray-400 text-[11px] uppercase tracking-widest border-b border-gray-50">
+                                <th class="px-4 py-3 font-bold">Title</th>
+                                <th class="px-4 py-3 font-bold">Borrowed</th>
+                                <th class="px-4 py-3 font-bold">Due</th>
+                                <th class="px-4 py-3 font-bold">Status</th>
+                                <th class="px-4 py-3 font-bold">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr th:each="loan : ${loans}" class="hover:bg-gray-50">
+                                <td class="px-4 py-3" th:text="${loan.bookTitle}">Title</td>
+                                <td class="px-4 py-3" th:text="${loan.borrowDate != null ? #temporals.format(loan.borrowDate, 'yyyy-MM-dd') : '-'}">Borrowed</td>
+                                <td class="px-4 py-3" th:text="${loan.dueDate != null ? #temporals.format(loan.dueDate, 'yyyy-MM-dd') : '-'}">Due</td>
+                                <td class="px-4 py-3">
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold"
+                                          th:classappend="${loan.status == 'BORROWED'} ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'"
+                                          th:text="${loan.status}">BORROWED</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <form th:if="${loan.status == 'BORROWED'}" th:action="@{'/loans/' + ${loan.id} + '/return'}" method="post">
+                                        <input type="hidden" name="memberId" th:value="${member.id}" />
+                                        <input type="hidden" name="bookId" th:value="${loan.bookId}" />
+                                        <button type="submit" class="text-green-600 hover:text-green-700 font-semibold text-sm">Return</button>
+                                    </form>
+                                    <span th:if="${loan.status != 'BORROWED'}" class="text-gray-400 text-sm">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-triangle-exclamation text-red-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Delete Member</h3>
+                    <p class="text-sm text-gray-500">This action cannot be undone</p>
+                </div>
+            </div>
+            <p class="text-gray-700 mb-6">
+                Are you sure you want to delete <strong th:text="${member.name}">this member</strong>? 
+                All associated data will be permanently removed.
+            </p>
+            <div class="flex gap-3">
+                <form th:action="@{'/members/' + ${member.id} + '/delete'}" method="post" class="flex-1">
+                    <button type="submit" class="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
+                        Yes, Delete Member
+                    </button>
+                </form>
+                <button onclick="document.getElementById('deleteModal').classList.add('hidden')"
+                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

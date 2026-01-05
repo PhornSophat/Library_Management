@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-[#F8F9FA] overflow-x-hidden font-sans antialiased text-gray-900">
+    <aside class="fixed top-0 left-0 h-screen w-64 z-50">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    </aside>
+
+    <div class="flex flex-col min-h-screen pl-64">
+        <nav class="fixed top-0 right-0 left-64 h-16 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100">
+            <div th:replace="~{fragments/navigation :: navigation}"></div>
+        </nav>
+
+        <main class="p-10 mt-16 mx-auto w-full max-w-6xl">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-4">
+                    <a href="/books" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fa-solid fa-arrow-left text-xl"></i>
+                    </a>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900" th:text="${book.title}">Book Title</h1>
+                        <p class="text-sm text-gray-500 mt-1" th:text="${book.author}">Author Name</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-4 py-2 rounded-full text-sm font-semibold"
+                          th:classappend="${book.status == 'AVAILABLE'} ? 'bg-green-100 text-green-700' : 
+                                         (${book.status == 'BORROWED'} ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700')"
+                          th:text="${book.status}">Available</span>
+                    <a th:if="${book.status == 'AVAILABLE'}" href="#borrow-form" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-book-open"></i>
+                        Borrow
+                    </a>
+                    <form th:if="${activeLoan != null}" th:action="@{'/loans/' + ${activeLoan.id} + '/return'}" method="post">
+                        <input type="hidden" name="bookId" th:value="${book.id}" />
+                        <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            Mark Returned
+                        </button>
+                    </form>
+                    <button onclick="document.getElementById('deleteModal').classList.remove('hidden')"
+                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-trash"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${successMessage}" class="mb-4 p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-check-circle"></i>
+                <span th:text="${successMessage}">Success message</span>
+            </div>
+            <div th:if="${errorMessage}" class="mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg flex items-center gap-3">
+                <i class="fa-solid fa-exclamation-circle"></i>
+                <span th:text="${errorMessage}">Error message</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Book Info Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6 lg:col-span-1">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600 text-2xl">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Book ID</p>
+                            <p class="font-semibold text-gray-900" th:text="${book.id}">123</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-sm text-gray-700">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Category</span>
+                            <span class="font-semibold" th:text="${book.category}">Category</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Status</span>
+                            <span class="font-semibold" th:text="${book.status}">Available</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Times Borrowed</span>
+                            <span class="font-semibold" th:text="${book.borrowCount != null ? book.borrowCount : '0'}">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Form -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6 lg:col-span-2">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">Update Book</h2>
+                    <form th:action="@{'/books/' + ${book.id} + '/update'}" method="post" class="space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+                                <input name="title" type="text" required th:value="${book.title}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Author</label>
+                                <input name="author" type="text" required th:value="${book.author}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                                <input name="category" type="text" required th:value="${book.category}"
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                <select name="status" class="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                    <option th:selected="${book.status == 'AVAILABLE'}" value="AVAILABLE">Available</option>
+                                    <option th:selected="${book.status == 'BORROWED'}" value="BORROWED">Borrowed</option>
+                                    <option th:selected="${book.status == 'RETURNED'}" value="RETURNED">Returned</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="submit" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                Save Changes
+                            </button>
+                            <a href="/books" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors">Back to list</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Borrow / Loan Section -->
+            <div id="borrow-form" class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-gray-900">Borrow this Book</h2>
+                        <span class="text-sm text-gray-500">Choose member + due date</span>
+                    </div>
+                    <div th:if="${book.status != 'AVAILABLE'}" class="text-sm text-gray-600 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg p-4">
+                        Book is not available for borrowing right now.
+                    </div>
+                    <form th:if="${book.status == 'AVAILABLE'}" th:action="@{'/books/' + ${book.id} + '/borrow'}" method="post" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Member</label>
+                            <select name="memberId" class="w-full px-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                <option value="">Select a member</option>
+                                <option th:each="member : ${members}" th:value="${member.id}" th:text="${member.name + ' (' + member.email + ')'}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
+                            <input type="date" name="dueDate"
+                                   th:value="${#temporals.format(#temporals.createNow().plusDays(14), 'yyyy-MM-dd')}"
+                                   class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        </div>
+                        <button type="submit" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-book-open"></i>
+                            Confirm Borrow
+                        </button>
+                    </form>
+                </div>
+
+                <div th:if="${activeLoan != null}" class="bg-white rounded-2xl shadow-sm border border-gray-50 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-gray-900">Active Loan</h2>
+                        <span class="text-sm text-blue-600 font-semibold">BORROWED</span>
+                    </div>
+                    <div class="space-y-3 text-sm text-gray-700">
+                        <div class="flex justify-between"><span class="text-gray-500">Member</span><span class="font-semibold" th:text="${activeLoan.memberName}">Member</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Borrowed On</span><span class="font-semibold" th:text="${#temporals.format(activeLoan.borrowDate, 'yyyy-MM-dd')}">2024-01-01</span></div>
+                        <div class="flex justify-between"><span class="text-gray-500">Due</span><span class="font-semibold" th:text="${#temporals.format(activeLoan.dueDate, 'yyyy-MM-dd')}">2024-01-15</span></div>
+                    </div>
+                    <form th:action="@{'/loans/' + ${activeLoan.id} + '/return'}" method="post" class="mt-4">
+                        <input type="hidden" name="bookId" th:value="${book.id}" />
+                        <button type="submit" class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            Mark as Returned
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-triangle-exclamation text-red-600 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Delete Book</h3>
+                    <p class="text-sm text-gray-500">This action cannot be undone</p>
+                </div>
+            </div>
+            <p class="text-gray-700 mb-6">
+                Are you sure you want to delete <strong th:text="${book.title}">this book</strong>? 
+                All associated data will be permanently removed.
+            </p>
+            <div class="flex gap-3">
+                <form th:action="@{'/books/' + ${book.id} + '/delete'}" method="post" class="flex-1">
+                    <button type="submit" class="w-full px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
+                        Yes, Delete Book
+                    </button>
+                </form>
+                <button onclick="document.getElementById('deleteModal').classList.add('hidden')"
+                        class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

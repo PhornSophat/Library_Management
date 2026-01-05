@@ -1,43 +1,23 @@
 package com.library.library_system.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
 
-@Entity
+@Document(collection = "members")
 public class Member {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    private String id;
     private String name;
     private String email;
     private String phone;
-
-    @Enumerated(EnumType.STRING)
     private Status status;
 
-    // Default constructor (required by JPA)
-    public Member() {}
-
-    // Constructor with fields
-    public Member(String name, String email, String phone, Status status) {
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.status = status;
-    }
-
     // Getters and setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

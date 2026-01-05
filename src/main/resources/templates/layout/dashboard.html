@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-[#F8F9FA] overflow-x-hidden font-sans antialiased text-gray-900">
+    <aside class="fixed top-0 left-0 h-screen w-64 z-50">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    </aside>
+
+    <div class="flex flex-col min-h-screen pl-64">
+        
+        <nav class="fixed top-0 right-0 left-64 h-16 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100">
+            <div th:replace="~{fragments/navigation :: navigation}"></div>
+        </nav>
+
+        <main class="p-10 mt-16 mx-auto w-full">
+            <!-- Header with Date/Time -->
+            <div class="mb-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight text-gray-900">Dashboard Overview</h1>
+                    <p class="text-sm text-gray-500 font-medium">Welcome back, <span th:text="${userName}">Admin</span>. Here's what's happening today.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-bold text-gray-900" id="currentDate"></p>
+                    <p class="text-xs text-gray-500" id="currentTime"></p>
+                </div>
+            </div>
+
+            <!-- Enhanced Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div th:replace="~{fragments/totalcard :: stats-card-enhanced('fa-solid fa-users', ${totalUsers}, 'Total Members', null, null)}"></div>
+                <div th:replace="~{fragments/totalcard :: stats-card-enhanced('fa-solid fa-book', ${totalBooks}, 'Total Books', null, null)}"></div>
+                <div th:replace="~{fragments/totalcard :: stats-card-enhanced('fa-solid fa-book-open', ${borrowedBooks}, 'Borrowed Books', null, null)}"></div>
+                <div th:replace="~{fragments/totalcard :: stats-card-enhanced('fa-solid fa-rotate-left', ${returnedBooks}, 'Returned Books', null, null)}"></div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Pie Chart -->
+                <div class="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-50 p-6 flex flex-col justify-center">
+                    <div th:replace="~{fragments/piechart :: book-stats-chart}"></div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="lg:col-span-1">
+                    <div th:replace="~{fragments/quick_actions :: quickActions}"></div>
+                </div>
+                
+                <!-- Overdue Borrowers -->
+                <div class="lg:col-span-1">
+                    <div th:replace="~{fragments/overdue_borrow :: status-list(${overdueTitle}, ${overdueList})}"></div>
+                </div>
+            </div>
+
+            <!-- Second Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Recent Activities -->
+                <div class="lg:col-span-1">
+                    <div th:replace="~{fragments/recent_activities :: activityFeed(${recentActivities})}"></div>
+                </div>
+                
+                <!-- Top Borrowed Books -->
+                <div class="lg:col-span-1">
+                    <div th:replace="~{fragments/top_books :: topBooks(${topBooks})}"></div>
+                </div>
+                
+                <!-- Admin List -->
+                <div class="lg:col-span-1">
+                    <div th:replace="~{fragments/admin_card :: admin-list(${adminTitle}, ${adminData})}"></div>
+                </div>
+            </div>
+
+            <!-- Recent Members Table -->
+            <div class="bg-white rounded-[2rem] shadow-sm border border-gray-50 overflow-hidden">
+                <div class="p-8 border-b border-gray-50 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">Recent Members</h2>
+                        <p class="text-sm text-gray-500 mt-1">Newly registered library members</p>
+                    </div>
+                    <a th:href="@{/members}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors flex items-center gap-2">
+                        <span>View All Members</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div th:replace="~{fragments/member_table :: memberContent(${recentMembers})}"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Date/Time Script -->
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            document.getElementById('currentDate').textContent = dateStr;
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+        
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    </script>
+</body>
+</html>

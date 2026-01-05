@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Navigation Fragment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+    .animate-shake {
+        animation: shake 0.4s ease-in-out;
+    }
+    </style>
+</head>
+<body>
+    <nav th:fragment="navigation" class="flex w-full items-center justify-between bg-white/90 backdrop-blur-md px-10 py-4 font-sans border-b border-gray-100">       
+        <div id="toastContainer" class="fixed top-24 right-10 z-[200] flex flex-col gap-4 pointer-events-none"></div>
+    
+        <div class="flex items-center gap-3">
+            <div class="text-gray-400">
+                <svg class="w-10 h-10 bg-gray-100 rounded-full p-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div class="flex flex-col" onclick="toggleModal(true)" style="cursor: pointer;">
+                <span class="text-lg font-bold text-gray-900 leading-tight" th:text="${userName ?: 'Guest User'}">User Name</span>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider" th:text="${userRole ?: 'Member'}">Role</span>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <!-- <div class="flex flex-col items-end pr-4 border-r border-gray-200">
+                <span class="js-time text-md font-black text-gray-900 leading-tight">--:-- --</span>
+                <span class="js-date text-[10px] font-bold text-gray-400 uppercase tracking-widest">--- --, ----</span>
+            </div> -->
+
+            <button onclick="toggleModal(true)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300">
+                <i class="fa-solid fa-gear text-xl"></i>
+            </button>
+        </div>
+
+        <div id="credentialsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-md transition-all duration-300">
+            
+            <div class="bg-white rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.3)] mt-[700px] w-full max-w-2xl p-10 md:p-14 animate-in fade-in zoom-in duration-300">
+                
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-6">
+                        <div class="w-16 h-16 bg-gray-100 rounded-3xl flex items-center justify-center text-gray-900 shadow-sm">
+                            <i class="fa-solid fa-shield-halved text-3xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-black text-gray-900 tracking-tight">Security</h2>
+                            <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Update Credentials</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="toggleModal(false)" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all border border-gray-100">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <hr class="border-gray-100 my-8">
+
+                <form th:action="@{/admin/update-credentials}" method="POST" class="space-y-7">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between gap-8">
+                            <label class="text-sm font-black text-gray-500 uppercase tracking-wider">Current Password</label>
+                            <div class="relative w-80">
+                                <input type="password" name="currentPassword" id="currentPass" required placeholder="••••••••"
+                                    class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-gray-50/50">
+                                <button type="button" onclick="togglePasswordVisibility('currentPass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fa-solid fa-eye text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-8">
+                            <label class="text-sm font-black text-gray-500 uppercase tracking-wider">New Password</label>
+                            <div class="relative w-80">
+                                <input type="password" name="newPassword" id="newPass" required placeholder="••••••••"
+                                    class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-gray-50/50">
+                                <button type="button" onclick="togglePasswordVisibility('newPass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fa-solid fa-eye text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-8">
+                            <label class="text-sm font-black text-gray-500 uppercase tracking-wider">Confirm New</label>
+                            <div class="relative w-80">
+                                <input type="password" name="confirmPassword" id="confirmPass" required placeholder="••••••••"
+                                    class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-gray-50/50">
+                                <button type="button" onclick="togglePasswordVisibility('confirmPass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <i class="fa-solid fa-eye text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 pt-6">
+                        <button type="button" onclick="toggleModal(false)" 
+                            class="flex-1 py-5 bg-gray-100 text-gray-400 font-black rounded-2xl hover:bg-gray-200 hover:text-gray-600 transition-all uppercase tracking-widest text-sm">
+                            Cancel Action
+                        </button>
+                        <button type="submit" 
+                            class="flex-1 py-5 bg-gray-900 text-white font-black rounded-2xl hover:bg-black transition-all shadow-xl shadow-gray-900/20 uppercase tracking-widest text-sm">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script>
+            // 1. DIGITAL CLOCK LOGIC
+            (function() {
+                const updateTime = () => {
+                    const now = new Date();
+                    const timeEl = document.querySelector('.js-time');
+                    const dateEl = document.querySelector('.js-date');
+
+                    if (timeEl) {
+                        timeEl.textContent = now.toLocaleTimeString('en-US', { 
+                            hour: '2-digit', 
+                            minute: '2-digit', 
+                            hour12: true 
+                        });
+                    }
+                    if (dateEl) {
+                        dateEl.textContent = now.toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: '2-digit', 
+                            year: 'numeric' 
+                        });
+                    }
+                };
+                updateTime();
+                setInterval(updateTime, 1000);
+            })();
+
+            // 2. MODAL TOGGLE LOGIC
+            function toggleModal(show) {
+                const modal = document.getElementById('credentialsModal');
+                if (!modal) return;
+
+                if (show) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex'); // Flex is required for centering
+                    document.body.style.overflow = 'hidden'; // Prevent background scroll
+                } else {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    document.body.style.overflow = 'auto'; // Restore scroll
+                }
+            }
+
+            // 3. CLOSE MODAL ON BACKGROUND CLICK
+            window.addEventListener('click', (e) => {
+                const modal = document.getElementById('credentialsModal');
+                // If the user clicks exactly on the overlay (not the white card)
+                if (e.target === modal) {
+                    toggleModal(false);
+                }
+            });
+
+            // 4. PASSWORD VISIBILITY TOGGLE
+            function togglePasswordVisibility(inputId, btn) {
+                const input = document.getElementById(inputId);
+                const icon = btn.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            }
+
+            // 5. FORM VALIDATION (CLIENT SIDE)
+            const authForm = document.querySelector('#credentialsModal form');
+            if (authForm) {
+                authForm.addEventListener('submit', function(e) {
+                    const newPass = document.getElementById('newPass').value;
+                    const confirmPass = document.getElementById('confirmPass').value;
+
+                    if (newPass !== confirmPass) {
+                        e.preventDefault(); // Stop form from sending to Java
+                        alert("The new passwords do not match. Please check again.");
+                    }
+                });
+            }
+
+            function showToast(message, type = 'success') {
+                const container = document.getElementById('toastContainer');
+                const toast = document.createElement('div');
+                
+                // Set colors based on success or error
+                const bgColor = type === 'success' ? 'bg-black' : 'bg-red-600';
+                const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
+                toast.className = `${bgColor} text-white px-8 py-5 rounded-2xl shadow-2xl flex items-center gap-4 animate-in slide-in-from-right duration-500 mb-4`;
+                toast.innerHTML = `
+                    <i class="fa-solid ${icon} text-xl"></i>
+                    <div class="flex flex-col">
+                        <span class="font-black text-xs uppercase tracking-widest">${type}</span>
+                        <span class="font-medium text-sm">${message}</span>
+                    </div>
+                `;
+
+                container.appendChild(toast);
+
+                // Auto-remove after 4 seconds
+                setTimeout(() => {
+                    toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right');
+                    setTimeout(() => toast.remove(), 500);
+                }, 4000);
+            }
+
+            // Add this inside your script block
+            window.addEventListener('load', () => {
+                const params = new URLSearchParams(window.location.search);
+                const status = params.get('status');
+
+                if (status === 'success') {
+                    showToast("Credentials updated successfully!", "success");
+                } else if (status === 'error') {
+                    showToast("Invalid current password.", "error");
+                    
+                    // 1. Open the modal
+                    toggleModal(true); 
+
+                    // 2. Target the white card inside the modal for the shake
+                    const modalCard = document.querySelector('#credentialsModal > div');
+                    if (modalCard) {
+                        modalCard.classList.add('animate-shake');
+                        
+                        // 3. Remove the class after animation finishes so it can be re-triggered
+                        setTimeout(() => {
+                            modalCard.classList.remove('animate-shake');
+                        }, 500);
+                    }
+                }
+            });
+        </script>
+    </nav>
+</body>
+</html>
