@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book - Library Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-section {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .info-card.show {
+            display: block;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .validation-box {
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+            border-left: 4px solid;
+        }
+
+        .validation-box.show {
+            display: block;
+        }
+
+        .validation-box.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .validation-box.error {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-check {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-borrow {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-borrow:hover:not(:disabled) {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-borrow:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .borrow-section {
+            display: none;
+        }
+
+        .borrow-section.show {
+            display: block;
+        }
+
+        .nav-links {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-info {
+            background-color: #e7f3ff;
+            border-color: #2196F3;
+            color: #0c5aa0;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .member-status-box {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .member-status-box.show {
+            display: block;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-value {
+            color: #666;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .book-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .book-card:hover {
+            border-color: #667eea;
+            background-color: #f8f9ff;
+        }
+
+        .book-card.selected {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .book-details {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .book-available {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .book-unavailable {
+            font-weight: 600;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Borrow Book</h1>
+            <p class="subtitle">Manage book borrowing for library members</p>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- LEFT COLUMN: MEMBER & VALIDATION -->
+            <div>
+                <div class="form-section">
+                    <div class="section-title">Step 1: Select Member</div>
+
+                    <div class="form-group">
+                        <label for="memberId">Choose Member <span class="required">*</span></label>
+                        <select id="memberId" onchange="selectMember()">
+                            <option value="">-- Select a member --</option>
+                            <option value="M006">Eng Mengheang</option>
+                            <option value="M005">La Vireak</option>
+                            <option value="M003">Luy Lyhor</option>
+                            <option value="M004">Phorn Sophath</option>
+                            <option value="M001">Bunarith Soksim</option>
+                            <option value="M002">Han Raby</option>
+                        </select>
+                    </div>
+
+                    <div class="member-status-box" id="memberStatusBox">
+                        <div class="status-item">
+                            <span class="status-label">Member ID:</span>
+                            <span class="status-value" id="memberIdDisplay">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Email:</span>
+                            <span class="status-value" id="memberEmail">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Phone:</span>
+                            <span class="status-value" id="memberPhone">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Current Status:</span>
+                            <span class="status-value" id="memberStatus">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Unreturned Books:</span>
+                            <span class="status-value" id="unreturnedCount">0</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Overdue Books:</span>
+                            <span class="status-value" id="overdueCount">0</span>
+                        </div>
+                    </div>
+
+                    <!-- VALIDATION ALERTS -->
+                    <div class="alert alert-danger" id="alertBlocked">
+                        <strong>⛔ BORROW BLOCKED!</strong>
+                        <p id="alertBlockedMsg"></p>
+                    </div>
+
+                    <div class="alert alert-warning" id="alertWarning">
+                        <strong>⚠️ WARNING!</strong>
+                        <p id="alertWarningMsg"></p>
+                    </div>
+
+                    <div class="alert alert-success" id="alertReady">
+                        <strong>✓ READY TO BORROW</strong>
+                        <p>This member can borrow a book</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: BOOK SELECTION -->
+            <div>
+                <div class="form-section">
+                    <div class="section-title">Step 2: Select Book</div>
+
+                    <div class="form-group">
+                        <label for="bookSearch">Search/Filter Books</label>
+                        <input type="text" id="bookSearch" placeholder="Search by title or author..." 
+                               onkeyup="filterBooks()" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 5px;">
+                    </div>
+
+                    <div class="book-grid" id="bookGrid">
+                        <!-- Books will be populated here -->
+                        <div class="book-card" data-book-id="B001" onclick="selectBook('B001')">
+                            <div class="book-title">The Great Gatsby</div>
+                            <div class="book-details">F. Scott Fitzgerald</div>
+                            <div class="book-details"><span class="book-available">✓ 5 copies</span></div>
+                        </div>
+                        <div class="book-card" data-book-id="B002" onclick="selectBook('B002')">
+                            <div class="book-title">To Kill a Mockingbird</div>
+                            <div class="book-details">Harper Lee</div>
+                            <div class="book-details"><span class="book-available">✓ 3 copies</span></div>
+                        </div>
+                        <div class="book-card" data-book-id="B003" onclick="selectBook('B003')">
+                            <div class="book-title">1984</div>
+                            <div class="book-details">George Orwell</div>
+                            <div class="book-details"><span class="book-unavailable">✗ Out of stock</span></div>
+                        </div>
+                        <div class="book-card" data-book-id="B004" onclick="selectBook('B004')">
+                            <div class="book-title">Pride and Prejudice</div>
+                            <div class="book-details">Jane Austen</div>
+                            <div class="book-details"><span class="book-available">✓ 4 copies</span></div>
+                        </div>
+                        <div class="book-card" data-book-id="B005" onclick="selectBook('B005')">
+                            <div class="book-title">The Catcher in the Rye</div>
+                            <div class="book-details">J.D. Salinger</div>
+                            <div class="book-details"><span class="book-available">✓ 2 copies</span></div>
+                        </div>
+                        <div class="book-card" data-book-id="B006" onclick="selectBook('B006')">
+                            <div class="book-title">Jane Eyre</div>
+                            <div class="book-details">Charlotte Brontë</div>
+                            <div class="book-details"><span class="book-available">✓ 3 copies</span></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; border: 2px solid #ddd; display: none;" id="selectedBookBox">
+                        <div class="section-title" style="margin-bottom: 10px;">Selected Book</div>
+                        <div class="status-item">
+                            <span class="status-label">Title:</span>
+                            <span class="status-value" id="selectedBookTitle">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Author:</span>
+                            <span class="status-value" id="selectedBookAuthor">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Available Copies:</span>
+                            <span class="status-value" id="selectedBookCopies">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS & SUMMARY -->
+        <div class="form-section" style="margin-top: 30px;">
+            <div class="section-title">Step 3: Confirm Borrowing</div>
+            
+            <div id="borrowSummary" style="display: none; background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 10px;">Borrow Summary</h3>
+                <p><strong>Member:</strong> <span id="summaryMember">-</span></p>
+                <p><strong>Book:</strong> <span id="summaryBook">-</span></p>
+                <p><strong>Borrow Date:</strong> <span id="summaryBorrowDate">-</span></p>
+                <p><strong>Due Date:</strong> <span id="summaryDueDate">-</span></p>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn-check" onclick="confirmBorrow()" id="confirmBtn" style="display: none;">
+                    ✓ Confirm Borrow
+                </button>
+                <button type="button" class="btn-secondary" onclick="resetForm()">
+                    ↺ Reset Form
+                </button>
+                <a href="/" style="padding: 12px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; border: none; cursor: pointer; font-weight: 600;">
+                    🏠 Back to Home
+                </a>
+            </div>
+        </div>
+
+        <!-- BUSINESS LOGIC REFERENCE -->
+        <div class="form-section" style="background-color: #f0f4ff; margin-top: 30px;">
+            <div class="section-title">📋 Business Rules - Lending Logic</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <h4 style="color: #333; margin-bottom: 10px;">✓ Successful Borrow</h4>
+                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                        <strong>1.</strong> Book is available<br>
+                        <strong>2.</strong> Member has NO overdue books<br>
+                        <strong>3.</strong> Member has NO unreturned books<br>
+                        ↓<br>
+                        <em>Create borrow record with 14-day lending period</em>
+                    </p>
+                </div>
+
+                <div style="padding: 15px; background: white; border-radius: 8px; border-left: 4px solid #dc3545;">
+                    <h4 style="color: #333; margin-bottom: 10px;">❌ Blocked Scenarios</h4>
+                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                        ① Book out of stock<br>
+                        ② Member has OVERDUE books → <strong>SUSPENDED</strong><br>
+                        ③ Member has UNRETURNED books → <strong>CANNOT BORROW</strong><br>
+                        <br>
+                        <em>Return items first</em>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="ReturnBook.html">📤 Return/Overdue Books</a>
+            <a href="/">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // MENGHEANG - BORROWING LOGIC (Activity Diagram)
+        // ============================================
+        // Decision Flow:
+        // 1. Is Book Available? → NO = Error "Book already borrowed"
+        // 2. Member has Overdue Books? → YES = Error "Member Suspended"
+        // 3. Member reached Borrow Limit? → YES = Error "Return old books first"
+        // 4. All checks passed → Create Borrow Record (14-day period)
+        // ============================================
+
+        // Member Database
+        // Member Database
+        // IMPORTANT: Member names MUST match exactly with ReturnBook.html for cross-page data sync
+        // These names are used as display defaults, but actual status is calculated from borrowRecords
+        const membersDB = {
+            M001: { name: 'Bunarith Soksim', email: 'bunarith@example.com', phone: '555-0001', unreturned: 0, overdue: false, suspended: false },
+            M002: { name: 'Han Raby', email: 'hanraby@example.com', phone: '555-0002', unreturned: 0, overdue: false, suspended: false },
+            M003: { name: 'Luy Lyhor', email: 'luylyhor@example.com', phone: '555-0003', unreturned: 2, overdue: false, suspended: false },
+            M004: { name: 'Phorn Sophath', email: 'phornsophath@example.com', phone: '555-0004', unreturned: 0, overdue: false, suspended: false },
+            M005: { name: 'La Vireak', email: 'lavireak@example.com', phone: '555-0005', unreturned: 0, overdue: false, suspended: false },
+            M006: { name: 'Eng Mengheang', email: 'engmengheang@example.com', phone: '555-0006', unreturned: 0, overdue: false, suspended: false }
+        };
+
+        // Book Database - with localStorage persistence
+        // This is the source of truth for book inventory across both pages
+        let booksDB = {
+            B001: { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', isbn: '978-0743273565', available: 5 },
+            B002: { title: 'To Kill a Mockingbird', author: 'Harper Lee', isbn: '978-0061120084', available: 3 },
+            B003: { title: '1984', author: 'George Orwell', isbn: '978-0451524935', available: 0 },
+            B004: { title: 'Pride and Prejudice', author: 'Jane Austen', isbn: '978-0141439518', available: 4 },
+            B005: { title: 'The Catcher in the Rye', author: 'J.D. Salinger', isbn: '978-0316769174', available: 2 },
+            B006: { title: 'Jane Eyre', author: 'Charlotte Brontë', isbn: '978-0141441146', available: 3 }
+        };
+
+        // Load book inventory from localStorage
+        // This ensures book availability is consistent across page refreshes and between pages
+        function loadBooksFromStorage() {
+            try {
+                const storedBooks = localStorage.getItem('booksDB');
+                if (storedBooks) {
+                    const parsed = JSON.parse(storedBooks);
+                    if (typeof parsed === 'object' && parsed !== null) {
+                        booksDB = parsed;
+                        console.log('Loaded book inventory from localStorage');
+                    }
+                } else {
+                    console.log('No stored books found, using defaults');
+                }
+            } catch (error) {
+                console.error('Error loading books from storage:', error);
+            }
+        }
+
+        // Save book inventory to localStorage
+        // Called every time a book is borrowed or returned
+        function saveBooksToStorage() {
+            try {
+                localStorage.setItem('booksDB', JSON.stringify(booksDB));
+                console.log('Book inventory saved to localStorage');
+            } catch (error) {
+                console.error('Error saving books to storage:', error);
+            }
+        }
+
+        // Update member status from actual borrow records
+        // This function ensures member status (unreturned count, overdue) is always calculated from
+        // real borrowing data rather than relying on hardcoded values
+        // Called on page load and after each borrow/return action
+        function updateMemberStatusFromRecords() {
+            const borrowRecords = JSON.parse(localStorage.getItem('borrowRecords')) || [];
+            
+            // Step 1: Reset all members to default status
+            Object.keys(membersDB).forEach(memberId => {
+                membersDB[memberId].unreturned = 0;
+                membersDB[memberId].overdue = false;
+            });
+            
+            // Step 2: Scan all borrow records and update member status based on actual data
+            borrowRecords.forEach(record => {
+                if (membersDB[record.memberId]) {
+                    // Count unreturned books (BORROWED or OVERDUE status means not yet returned)
+                    if (record.status === 'BORROWED' || record.status === 'OVERDUE') {
+                        membersDB[record.memberId].unreturned++;
+                    }
+                    // Mark as overdue if any record has OVERDUE status
+                    if (record.status === 'OVERDUE') {
+                        membersDB[record.memberId].overdue = true;
+                    }
+                }
+            });
+            
+            console.log('Member statuses updated from borrow records:', membersDB);
+        }
+
+        // Update book card display with current inventory from localStorage
+        // This function iterates through all books and refreshes their UI to show current availability
+        // Called on page load to ensure display matches actual book inventory
+        function updateBookCardDisplay() {
+            Object.keys(booksDB).forEach(bookId => {
+                const book = booksDB[bookId];
+                const card = document.querySelector(`[data-book-id="${bookId}"]`);
+                if (card) {
+                    const detailsDiv = card.querySelector('.book-details:last-child');
+                    if (book.available > 0) {
+                        detailsDiv.innerHTML = `<span class="book-available">✓ ${book.available} copies</span>`;
+                    } else {
+                        detailsDiv.innerHTML = `<span class="book-unavailable">✗ Out of stock</span>`;
+                    }
+                }
+            });
+            console.log('Book card display updated with current inventory');
+        }
+
+        let selectedMemberId = null;
+        let selectedBookId = null;
+
+        function selectMember() {
+            const memberId = document.getElementById('memberId').value;
+            if (!memberId) {
+                document.getElementById('memberStatusBox').classList.remove('show');
+                clearValidationAlerts();
+                return;
+            }
+
+            selectedMemberId = memberId;
+            const member = membersDB[memberId];
+
+            // Display member details
+            document.getElementById('memberIdDisplay').textContent = memberId;
+            document.getElementById('memberEmail').textContent = member.email;
+            document.getElementById('memberPhone').textContent = member.phone;
+            document.getElementById('unreturnedCount').textContent = member.unreturned;
+            document.getElementById('overdueCount').textContent = member.overdue ? 'Yes' : 'No';
+
+            // Set status badge
+            let statusBadge = '';
+            if (member.suspended) {
+                statusBadge = '<span class="badge badge-danger">⛔ SUSPENDED</span>';
+            } else if (member.overdue) {
+                statusBadge = '<span class="badge badge-danger">⛔ OVERDUE</span>';
+            } else if (member.unreturned > 0) {
+                statusBadge = '<span class="badge badge-warning">⚠️ UNRETURNED BOOKS</span>';
+            } else {
+                statusBadge = '<span class="badge badge-success">✓ ACTIVE</span>';
+            }
+            document.getElementById('memberStatus').innerHTML = statusBadge;
+
+            // Show validation alerts
+            showMemberValidation(memberId, member);
+
+            document.getElementById('memberStatusBox').classList.add('show');
+            checkBorrowEligibility();
+        }
+
+        function showMemberValidation(memberId, member) {
+            clearValidationAlerts();
+
+            // ========================================
+            // THREE KEY VALIDATION SCENARIOS
+            // ========================================
+
+            if (member.overdue) {
+                // SCENARIO 1: Member has OVERDUE books → SUSPENDED
+                document.getElementById('alertBlocked').classList.add('show');
+                document.getElementById('alertBlockedMsg').innerHTML = 
+                    '❌ <strong>MEMBER SUSPENDED!</strong><br>' +
+                    'This member has <strong>OVERDUE BOOKS</strong> and is <strong>SUSPENDED</strong> from borrowing.<br>' +
+                    'All overdue items must be returned before borrowing new books.<br>' +
+                    '<br><em>Business Rule: If member already overdue on borrowed book then member suspend on borrowing more book</em>';
+            } 
+            else if (member.unreturned > 0) {
+                // SCENARIO 2: Member has UNRETURNED books → CANNOT BORROW
+                document.getElementById('alertBlocked').classList.add('show');
+                document.getElementById('alertBlockedMsg').innerHTML = 
+                    '❌ <strong>CANNOT BORROW!</strong><br>' +
+                    `This member has <strong>${member.unreturned} UNRETURNED BOOK(S)</strong>.<br>` +
+                    'All borrowed books must be returned first before borrowing more.<br>' +
+                    '<br><em>Business Rule: If member already have return the book or not. if not then cannot borrow any more book</em>';
+            } 
+            else if (member.suspended) {
+                // SCENARIO 3: Member is administratively suspended
+                document.getElementById('alertBlocked').classList.add('show');
+                document.getElementById('alertBlockedMsg').innerHTML = 
+                    '❌ <strong>MEMBER SUSPENDED!</strong><br>' +
+                    'This member has been suspended from borrowing.<br>' +
+                    'Please contact administration to lift the suspension.';
+            }
+            else {
+                // All good - member is eligible
+                document.getElementById('alertReady').classList.add('show');
+            }
+        }
+
+        function clearValidationAlerts() {
+            document.getElementById('alertBlocked').classList.remove('show');
+            document.getElementById('alertWarning').classList.remove('show');
+            document.getElementById('alertReady').classList.remove('show');
+        }
+
+        function selectBook(bookId) {
+            selectedBookId = bookId;
+
+            // Remove previous selection
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Select current book
+            document.querySelector(`[data-book-id="${bookId}"]`).classList.add('selected');
+
+            const book = booksDB[bookId];
+
+            // Display selected book info
+            document.getElementById('selectedBookTitle').textContent = book.title;
+            document.getElementById('selectedBookAuthor').textContent = book.author;
+            document.getElementById('selectedBookCopies').textContent = book.available > 0 ? book.available + ' copies' : 'Out of stock';
+            
+            document.getElementById('selectedBookBox').style.display = 'block';
+
+            checkBorrowEligibility();
+        }
+
+        function filterBooks() {
+            const searchTerm = document.getElementById('bookSearch').value.toLowerCase();
+            const bookCards = document.querySelectorAll('.book-card');
+
+            bookCards.forEach(card => {
+                const title = card.querySelector('.book-title').textContent.toLowerCase();
+                const author = card.querySelector('.book-details').textContent.toLowerCase();
+
+                if (title.includes(searchTerm) || author.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function checkBorrowEligibility() {
+            const confirmBtn = document.getElementById('confirmBtn');
+            const borrowSummary = document.getElementById('borrowSummary');
+
+            if (!selectedMemberId || !selectedBookId) {
+                confirmBtn.style.display = 'none';
+                borrowSummary.style.display = 'none';
+                return;
+            }
+
+            const member = membersDB[selectedMemberId];
+            const book = booksDB[selectedBookId];
+
+            // ========================================
+            // LENDING LOGIC DIAGRAM IMPLEMENTATION
+            // ========================================
+
+            // STEP 1: Check if Book is Available
+            if (book.available <= 0) {
+                // Error: Book already borrowed
+                borrowSummary.style.display = 'none';
+                confirmBtn.style.display = 'none';
+                showAlertError('Book is OUT OF STOCK! No copies available at this time.');
+                return;
+            }
+
+            // STEP 2: Check if Member has Overdue Books
+            if (member.overdue) {
+                // Error: Member Suspended
+                borrowSummary.style.display = 'none';
+                confirmBtn.style.display = 'none';
+                showAlertError('❌ MEMBER SUSPENDED!<br><br>This member has OVERDUE BOOKS and is suspended from borrowing.<br>All overdue items must be returned first before borrowing new books.');
+                return;
+            }
+
+            // STEP 3: Check if Member has Unreturned Books
+            if (member.unreturned > 0) {
+                // Error: Reached Borrow Limit
+                borrowSummary.style.display = 'none';
+                confirmBtn.style.display = 'none';
+                showAlertError(`❌ UNRETURNED BOOKS!<br><br>This member has ${member.unreturned} unreturned book(s).<br>All borrowed books must be returned first before borrowing more.`);
+                return;
+            }
+
+            // STEP 4: All checks passed - Create Borrow Record
+            // Calculate Due Date (14 days)
+            const borrowDate = new Date();
+            const dueDate = new Date(borrowDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+            // Show Success Summary
+            document.getElementById('summaryMember').textContent = member.name + ` (${selectedMemberId})`;
+            document.getElementById('summaryBook').textContent = book.title;
+            document.getElementById('summaryBorrowDate').textContent = borrowDate.toLocaleDateString();
+            document.getElementById('summaryDueDate').textContent = dueDate.toLocaleDateString();
+
+            borrowSummary.style.display = 'block';
+            confirmBtn.style.display = 'block';
+            
+            // Clear any previous error alerts
+            document.getElementById('alertBlocked').classList.remove('show');
+        }
+
+        function showAlertError(message) {
+            document.getElementById('alertBlockedMsg').innerHTML = message;
+            document.getElementById('alertBlocked').classList.add('show');
+            document.getElementById('alertWarning').classList.remove('show');
+            document.getElementById('alertReady').classList.remove('show');
+        }
+
+        function confirmBorrow() {
+            if (!selectedMemberId || !selectedBookId) {
+                alert('Please select both member and book');
+                return;
+            }
+
+            const member = membersDB[selectedMemberId];
+            const book = booksDB[selectedBookId];
+            const borrowDate = new Date();
+            const dueDate = new Date(borrowDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+            // Create comprehensive borrow record
+            const borrowRecord = {
+                id: 'BR' + Date.now(),
+                memberId: selectedMemberId,
+                bookId: selectedBookId,
+                memberName: member.name,
+                memberEmail: member.email,
+                memberPhone: member.phone,
+                bookTitle: book.title,
+                bookAuthor: book.author,
+                isbn: book.isbn,
+                borrowDate: borrowDate.toISOString().split('T')[0],
+                borrowDateDisplay: borrowDate.toLocaleDateString(),
+                dueDate: dueDate.toISOString().split('T')[0],
+                dueDateDisplay: dueDate.toLocaleDateString(),
+                returnDate: null,
+                status: 'BORROWED',
+                fineAmount: 0
+            };
+
+            // Save to localStorage
+            let borrowRecords = JSON.parse(localStorage.getItem('borrowRecords')) || [];
+            borrowRecords.push(borrowRecord);
+            localStorage.setItem('borrowRecords', JSON.stringify(borrowRecords));
+
+            // Update book availability and save to localStorage
+            book.available--;
+            saveBooksToStorage();
+
+            // Update member borrowed count
+            if (!member.unreturned) member.unreturned = 0;
+            member.unreturned++;
+
+            alert(`✓ SUCCESS!\n\n${member.name} has borrowed:\n"${book.title}"\n\nAvailable copies left: ${book.available}\nDue Date: ${borrowRecord.dueDateDisplay}\n\nRecord ID: ${borrowRecord.id}\n\n📋 Go to Return Book page to manage returns`);
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('memberId').value = '';
+            document.getElementById('bookSearch').value = '';
+            document.getElementById('memberStatusBox').classList.remove('show');
+            document.getElementById('selectedBookBox').style.display = 'none';
+            document.getElementById('borrowSummary').style.display = 'none';
+            document.getElementById('confirmBtn').style.display = 'none';
+            
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.style.display = 'block';
+                card.classList.remove('selected');
+            });
+
+            clearValidationAlerts();
+            selectedMemberId = null;
+            selectedBookId = null;
+        }
+
+        // Initialize - Load book inventory from localStorage on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Step 1: Load book inventory from localStorage (cross-page sync)
+            loadBooksFromStorage();
+            
+            // Step 2: Recalculate member status from actual borrow records
+            // This ensures member unreturned/overdue counts match reality, not hardcoded values
+            updateMemberStatusFromRecords();
+            
+            // Step 3: Refresh book card UI to show current available copies
+            // Users see real-time inventory without manual page refresh
+            updateBookCardDisplay();
+            
+            // Initialization complete - all data is synced from localStorage
+            console.log('✓ BorrowBook.html initialized - all data synced from localStorage');
+            console.log('✓ Book inventory loaded');
+            console.log('✓ Member status updated from actual records');
+            console.log('✓ Book display refreshed');
+        });
+    </script>
+</body>
+</html>
