@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return/Overdue Books - Library Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-section {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .required {
+            color: #dc3545;
+        }
+
+        /* TABS STYLING */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.show {
+            display: block;
+        }
+
+        /* TABLE STYLING */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background-color: #667eea;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* STATUS BADGES */
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-borrowed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-returned {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        /* FINE STYLING */
+        .fine-amount {
+            font-weight: 600;
+            color: #dc3545;
+        }
+
+        .days-overdue {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        /* BUTTONS */
+        .action-btn {
+            padding: 8px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .action-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* ALERTS */
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-info {
+            background-color: #e7f3ff;
+            border-color: #2196F3;
+            color: #0c5aa0;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        /* SEARCH BOX */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        /* STATS */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .member-info-box {
+            background-color: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .member-info-box.show {
+            display: block;
+        }
+
+        .member-info-box strong {
+            color: #333;
+        }
+
+        /* NAVIGATION */
+        .nav-links {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-links a, .nav-links button {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            display: inline-block;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .nav-links a:hover, .nav-links button:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📤 Return / Overdue Books</h1>
+            <p class="subtitle">Manage book returns and track overdue items</p>
+        </div>
+
+        <!-- MEMBER SELECTION -->
+        <div class="form-section">
+            <div class="section-title">Select Member</div>
+            <div class="form-group">
+                <label for="memberId">Choose Member with Borrowed Books <span class="required">*</span></label>
+                <select id="memberId" onchange="loadMemberData()">
+                    <option value="">-- Select a member --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- MEMBER STATUS BOX -->
+        <div class="member-info-box" id="memberInfoBox">
+            <strong id="memberNameDisplay"></strong> - Borrowing Status
+        </div>
+
+        <!-- STATISTICS CARDS -->
+        <div class="stats" id="statsContainer" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalBorrowed">0</div>
+                <div class="stat-label">Borrowed Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="overdueBooksCount">0</div>
+                <div class="stat-label">Overdue Books</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalFine">0</div>
+                <div class="stat-label">Total Fine</div>
+            </div>
+        </div>
+
+        <!-- TABS SECTION -->
+        <div class="form-section" id="tabsContainer" style="display: none;">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('borrowed')">
+                    📖 Borrowed Books
+                </button>
+                <button class="tab-btn" onclick="switchTab('overdue')">
+                    ⏰ Overdue Books
+                </button>
+                <button class="tab-btn" onclick="switchTab('returned')">
+                    ✓ Returned Books
+                </button>
+            </div>
+
+            <!-- BORROWED BOOKS TAB -->
+            <div id="borrowed" class="tab-content show">
+                <div class="section-title">Current Borrowed Books</div>
+                <div class="search-box">
+                    <input type="text" id="borrowedSearch" placeholder="Search by book title..." onkeyup="filterTable('borrowed')">
+                </div>
+                <div class="table-responsive">
+                    <table id="borrowedTable">
+                        <thead>
+                            <tr>
+                                <th>Record ID</th>
+                                <th>Book Title</th>
+                                <th>Borrow Date</th>
+                                <th>Due Date</th>
+                                <th>Days Left</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="borrowedBody"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="borrowedEmpty">No borrowed books</div>
+            </div>
+
+            <!-- OVERDUE BOOKS TAB -->
+            <div id="overdue" class="tab-content">
+                <div class="section-title">⚠️ Overdue Books (Member Suspended)</div>
+                <p style="color: #d32f2f; margin-bottom: 15px; font-weight: 600;">
+                    ⛔ Members with overdue books are SUSPENDED from borrowing. They must return all overdue items first.
+                </p>
+                <div class="search-box">
+                    <input type="text" id="overdueSearch" placeholder="Search by book title..." onkeyup="filterTable('overdue')">
+                </div>
+                <div class="table-responsive">
+                    <table id="overdueTable">
+                        <thead>
+                            <tr>
+                                <th>Record ID</th>
+                                <th>Book Title</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th>Fine/Day</th>
+                                <th>Total Fine</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="overdueBody"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="overdueEmpty">No overdue books</div>
+            </div>
+
+            <!-- RETURNED BOOKS TAB -->
+            <div id="returned" class="tab-content">
+                <div class="section-title">Returned Books History</div>
+                <div class="search-box">
+                    <input type="text" id="returnedSearch" placeholder="Search by book title..." onkeyup="filterTable('returned')">
+                </div>
+                <div class="table-responsive">
+                    <table id="returnedTable">
+                        <thead>
+                            <tr>
+                                <th>Record ID</th>
+                                <th>Book Title</th>
+                                <th>Return Date</th>
+                                <th>Due Date</th>
+                                <th>Fine Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnedBody"></tbody>
+                    </table>
+                </div>
+                <div class="empty-state" id="returnedEmpty">No returned books</div>
+            </div>
+        </div>
+
+        <!-- INFORMATION ALERT -->
+        <div class="alert alert-info" id="infoAlert">
+            <strong>ℹ️ Business Rules:</strong>
+            <ul style="margin-top: 10px; margin-left: 20px;">
+                <li>If a member has unreturned books, they cannot borrow more books.</li>
+                <li>If a member has overdue books, they are <strong>SUSPENDED</strong> from borrowing.</li>
+                <li>Fine: 1000 per day overdue. Member must pay before borrowing again.</li>
+            </ul>
+        </div>
+
+        <!-- NAVIGATION LINKS -->
+        <div class="nav-links">
+            <a href="BorrowBook.html">📥 Borrow Book</a>
+            <a href="/">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        const FINE_PER_DAY = 1000;
+
+        // Book Database mapping for inventory updates
+        const booksDB = {
+            B001: { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', isbn: '978-0743273565', available: 5 },
+            B002: { title: 'To Kill a Mockingbird', author: 'Harper Lee', isbn: '978-0061120084', available: 3 },
+            B003: { title: '1984', author: 'George Orwell', isbn: '978-0451524935', available: 0 },
+            B004: { title: 'Pride and Prejudice', author: 'Jane Austen', isbn: '978-0141439518', available: 4 },
+            B005: { title: 'The Catcher in the Rye', author: 'J.D. Salinger', isbn: '978-0316769174', available: 2 },
+            B006: { title: 'Jane Eyre', author: 'Charlotte Brontë', isbn: '978-0141441146', available: 3 }
+        };
+
+        // Load book inventory from localStorage
+        function loadBooksFromStorage() {
+            try {
+                const storedBooks = localStorage.getItem('booksDB');
+                if (storedBooks) {
+                    const stored = JSON.parse(storedBooks);
+                    Object.assign(booksDB, stored);
+                }
+            } catch (error) {
+                console.error('Error loading books from storage:', error);
+            }
+        }
+
+        // Save book inventory to localStorage
+        function saveBooksToStorage() {
+            try {
+                localStorage.setItem('booksDB', JSON.stringify(booksDB));
+            } catch (error) {
+                console.error('Error saving books to storage:', error);
+            }
+        }
+
+        // Find book ID by title
+        function getBookIdByTitle(bookTitle) {
+            for (let bookId in booksDB) {
+                if (booksDB[bookId].title === bookTitle) {
+                    return bookId;
+                }
+            }
+            return null;
+        }
+
+        // Populate member dropdown from borrow records
+        // IMPORTANT: Member names are extracted from actual borrow records (synced from BorrowBook.html)
+        // This ensures data consistency without hardcoding member names
+        function populateMemberDropdown() {
+            const membersSelect = document.getElementById('memberId');
+            
+            // Get unique members from borrow records with ACTIVE borrowed/overdue books (NOT returned)
+            const uniqueMembers = {};
+            borrowRecords.forEach(record => {
+                // Only include members with BORROWED or OVERDUE books (not RETURNED)
+                if (record.status === 'BORROWED' || record.status === 'OVERDUE') {
+                    if (!uniqueMembers[record.memberId]) {
+                        // Use memberName from actual borrow record (this comes from BorrowBook.html confirmBorrow)
+                        uniqueMembers[record.memberId] = {
+                            id: record.memberId,
+                            name: record.memberName || `Member ${record.memberId}`
+                        };
+                    }
+                }
+            });
+
+            // Sort members by name (A-Z)
+            const sortedMembers = Object.values(uniqueMembers).sort((a, b) => 
+                a.name.localeCompare(b.name)
+            );
+
+            // Clear existing options (keep the placeholder)
+            while (membersSelect.options.length > 1) {
+                membersSelect.remove(1);
+            }
+
+            // Add members from borrow records
+            sortedMembers.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                membersSelect.appendChild(option);
+            });
+            
+            console.log(`✓ Member dropdown updated: ${sortedMembers.length} members with active books`);
+        }
+
+        // Load borrow records from localStorage
+        // Sample records include correct member names (Khmer) matching BorrowBook.html database
+        // Real records from BorrowBook.html take priority over sample records
+        function loadBorrowRecordsFromStorage() {
+            // Sample data for testing - all member names match BorrowBook.html exactly
+            const sampleRecords = [
+                { id: 'BR001', memberId: 'M001', memberName: 'Bunarith Soksim', bookTitle: 'The Great Gatsby', borrowDate: '2024-12-20', dueDate: '2025-01-03', returnDate: null, status: 'BORROWED', fineAmount: 0 },
+                { id: 'BR002', memberId: 'M002', memberName: 'Han Raby', bookTitle: 'Pride and Prejudice', borrowDate: '2024-12-25', dueDate: '2025-01-08', returnDate: null, status: 'BORROWED', fineAmount: 0 },
+                { id: 'BR003', memberId: 'M003', memberName: 'Luy Lyhor', bookTitle: '1984', borrowDate: '2024-12-18', dueDate: '2025-01-01', returnDate: null, status: 'OVERDUE', fineAmount: 0 },
+                { id: 'BR004', memberId: 'M003', memberName: 'Luy Lyhor', bookTitle: 'Brave New World', borrowDate: '2024-12-10', dueDate: '2024-12-24', returnDate: null, status: 'OVERDUE', fineAmount: 0 },
+                { id: 'BR005', memberId: 'M004', memberName: 'Phorn Sophath', bookTitle: 'To Kill a Mockingbird', borrowDate: '2024-12-10', dueDate: '2024-12-24', returnDate: null, status: 'OVERDUE', fineAmount: 0 },
+                { id: 'BR006', memberId: 'M001', memberName: 'Bunarith Soksim', bookTitle: 'Jane Eyre', borrowDate: '2024-12-01', dueDate: '2024-12-15', returnDate: '2024-12-14', status: 'RETURNED', fineAmount: 0 },
+                { id: 'BR007', memberId: 'M002', memberName: 'Han Raby', bookTitle: 'Wuthering Heights', borrowDate: '2024-11-20', dueDate: '2024-12-04', returnDate: '2024-12-06', status: 'RETURNED', fineAmount: 2000 }
+            ];
+
+            try {
+                const storedData = localStorage.getItem('borrowRecords');
+                if (!storedData) {
+                    console.log('No stored borrow records found, using sample data');
+                    return sampleRecords;
+                }
+                
+                const storedRecords = JSON.parse(storedData);
+                if (!Array.isArray(storedRecords)) {
+                    console.warn('Invalid stored records format, using sample data');
+                    return sampleRecords;
+                }
+                
+                // Merge stored records with sample records, giving priority to stored records
+                const mergedRecords = [...sampleRecords];
+                storedRecords.forEach(storedRecord => {
+                    // Validate stored record has required fields
+                    if (storedRecord.id && storedRecord.memberId && storedRecord.memberName) {
+                        const index = mergedRecords.findIndex(r => r.id === storedRecord.id);
+                        if (index >= 0) {
+                            mergedRecords[index] = storedRecord;
+                        } else {
+                            mergedRecords.push(storedRecord);
+                        }
+                    }
+                });
+                
+                console.log(`Loaded ${mergedRecords.length} borrow records (${storedRecords.length} from storage, ${sampleRecords.length} sample)`);
+                return mergedRecords;
+            } catch (error) {
+                console.error('Error loading borrow records from localStorage:', error);
+                return sampleRecords;
+            }
+        }
+
+        // Initialize borrowRecords from localStorage
+        let borrowRecords = loadBorrowRecordsFromStorage();
+
+        function loadMemberData() {
+            const memberId = document.getElementById('memberId').value;
+            
+            if (!memberId) {
+                document.getElementById('memberInfoBox').classList.remove('show');
+                document.getElementById('tabsContainer').style.display = 'none';
+                document.getElementById('statsContainer').style.display = 'none';
+                return;
+            }
+
+            // Update statuses - mark books as OVERDUE if past due date
+            updateBorrowRecordStatuses();
+
+            const memberSelect = document.getElementById('memberId');
+            const memberName = memberSelect.options[memberSelect.selectedIndex].textContent;
+            document.getElementById('memberNameDisplay').textContent = memberName;
+            document.getElementById('memberInfoBox').classList.add('show');
+            document.getElementById('tabsContainer').style.display = 'block';
+
+            // Get member records
+            const memberRecords = borrowRecords.filter(r => r.memberId === memberId);
+            loadBorrowedBooks(memberRecords);
+            loadOverdueBooks(memberRecords);
+            loadReturnedBooks(memberRecords);
+            updateStats(memberRecords);
+        }
+
+        // Update book statuses: change BORROWED to OVERDUE if past due date
+        function updateBorrowRecordStatuses() {
+            const today = new Date();
+            borrowRecords.forEach(record => {
+                if (record.status === 'BORROWED') {
+                    const dueDate = new Date(record.dueDate);
+                    if (today > dueDate) {
+                        record.status = 'OVERDUE';
+                    }
+                }
+            });
+            // Save updated statuses to localStorage
+            localStorage.setItem('borrowRecords', JSON.stringify(borrowRecords));
+        }
+
+        function updateStats(records) {
+            const borrowed = records.filter(r => r.status === 'BORROWED').length;
+            const overdue = records.filter(r => r.status === 'OVERDUE').length;
+            const totalFine = records.filter(r => r.status === 'OVERDUE')
+                .reduce((sum, r) => {
+                    const daysLate = calculateDaysOverdue(r.dueDate);
+                    return sum + (daysLate * FINE_PER_DAY);
+                }, 0);
+
+            document.getElementById('totalBorrowed').textContent = borrowed;
+            document.getElementById('overdueBooksCount').textContent = overdue;
+            document.getElementById('totalFine').textContent = totalFine.toLocaleString();
+            document.getElementById('statsContainer').style.display = 'grid';
+        }
+
+        function loadBorrowedBooks(records) {
+            const borrowed = records.filter(r => r.status === 'BORROWED');
+            const tbody = document.getElementById('borrowedBody');
+            const empty = document.getElementById('borrowedEmpty');
+
+            if (borrowed.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            tbody.innerHTML = borrowed.map(r => {
+                const daysLeft = calculateDaysDifference(new Date(), new Date(r.dueDate));
+                const daysLeftClass = daysLeft <= 3 ? 'style="color: #dc3545; font-weight: 600;"' : '';
+
+                return `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.bookTitle}</td>
+                        <td>${new Date(r.borrowDate).toLocaleDateString()}</td>
+                        <td>${new Date(r.dueDate).toLocaleDateString()}</td>
+                        <td ${daysLeftClass}>${daysLeft > 0 ? daysLeft + ' days' : '⏰ Overdue'}</td>
+                        <td><span class="status-badge badge-borrowed">BORROWED</span></td>
+                        <td><button class="action-btn" onclick="processReturn('${r.id}')">Return</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadOverdueBooks(records) {
+            const overdue = records.filter(r => r.status === 'OVERDUE');
+            const tbody = document.getElementById('overdueBody');
+            const empty = document.getElementById('overdueEmpty');
+
+            if (overdue.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            tbody.innerHTML = overdue.map(r => {
+                const daysLate = calculateDaysOverdue(r.dueDate);
+                const totalFine = daysLate * FINE_PER_DAY;
+
+                return `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.bookTitle}</td>
+                        <td>${new Date(r.dueDate).toLocaleDateString()}</td>
+                        <td><span class="days-overdue">${daysLate} days</span></td>
+                        <td>${FINE_PER_DAY.toLocaleString()}</td>
+                        <td><span class="fine-amount">${totalFine.toLocaleString()}</span></td>
+                        <td><span class="status-badge badge-overdue">OVERDUE</span></td>
+                        <td><button class="action-btn" onclick="processReturn('${r.id}')">Return</button></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function loadReturnedBooks(records) {
+            const returned = records.filter(r => r.status === 'RETURNED');
+            const tbody = document.getElementById('returnedBody');
+            const empty = document.getElementById('returnedEmpty');
+
+            if (returned.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            tbody.innerHTML = returned.map(r => {
+                return `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.bookTitle}</td>
+                        <td>${new Date(r.returnDate).toLocaleDateString()}</td>
+                        <td>${new Date(r.dueDate).toLocaleDateString()}</td>
+                        <td>${r.fineAmount > 0 ? '<span class="fine-amount">' + r.fineAmount.toLocaleString() + '</span>' : 'No fine'}</td>
+                        <td><span class="status-badge badge-returned">RETURNED</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Helper function: Calculate days between dates
+        function calculateDaysDifference(fromDate, toDate) {
+            return Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24));
+        }
+
+        // Helper function: Calculate days overdue
+        function calculateDaysOverdue(dueDateString) {
+            const dueDate = new Date(dueDateString);
+            const today = new Date();
+            return Math.max(0, calculateDaysDifference(dueDate, today));
+        }
+
+        function processReturn(recordId) {
+            const record = borrowRecords.find(r => r.id === recordId);
+            if (!record) return;
+
+            const today = new Date();
+            const daysLate = calculateDaysOverdue(record.dueDate);
+            const fine = daysLate * FINE_PER_DAY;
+
+            record.returnDate = today.toISOString().split('T')[0];
+            record.status = 'RETURNED';
+            record.fineAmount = fine;
+
+            // Increase book availability when returned
+            const bookId = record.bookId || getBookIdByTitle(record.bookTitle);
+            if (bookId && booksDB[bookId]) {
+                booksDB[bookId].available++;
+                saveBooksToStorage();
+            }
+
+            // Save updated records back to localStorage
+            localStorage.setItem('borrowRecords', JSON.stringify(borrowRecords));
+
+            const message = fine > 0
+                ? `✓ Book Returned!\n\nRecord: ${record.id}\n\n⚠️ Fine: ${fine.toLocaleString()} (${daysLate} days × ${FINE_PER_DAY})\n\nMember must pay fine before borrowing again.`
+                : `✓ Book Returned On Time!\n\nRecord: ${record.id}\nNo fine charged.`;
+
+            alert(message);
+            
+            // Check if member has more borrowed books
+            const currentMemberId = document.getElementById('memberId').value;
+            const memberHasMoreBooks = borrowRecords.some(r => 
+                r.memberId === currentMemberId && (r.status === 'BORROWED' || r.status === 'OVERDUE')
+            );
+            
+            // Refresh member dropdown
+            populateMemberDropdown();
+            
+            // If member has no more borrowed books, reset the form and clear selection
+            if (!memberHasMoreBooks) {
+                document.getElementById('memberId').value = '';
+                document.getElementById('memberInfoBox').classList.remove('show');
+                document.getElementById('tabsContainer').style.display = 'none';
+                document.getElementById('statsContainer').style.display = 'none';
+            } else {
+                loadMemberData(); // Refresh the display for current member
+            }
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('show'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('show');
+            event.target.classList.add('active');
+        }
+
+        function filterTable(tabName) {
+            const searchInput = document.getElementById(tabName + 'Search').value.toLowerCase();
+            const tableId = tabName + 'Table';
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const bookTitle = row.cells[1].textContent.toLowerCase();
+                row.style.display = bookTitle.includes(searchInput) ? '' : 'none';
+            });
+        }
+
+        // Initialize page - load records from localStorage on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadBooksFromStorage(); // Load book inventory
+            borrowRecords = loadBorrowRecordsFromStorage();
+            populateMemberDropdown(); // Populate members from borrow records
+            updateBorrowRecordStatuses(); // Update statuses when page loads
+            console.log('✓ Borrow records loaded from storage:', borrowRecords.length, 'records');
+            console.log('✓ Book inventory loaded from storage');
+            console.log('✓ Member dropdown populated from borrow records');
+        });
+    </script>
+</body>
+
