@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library System | Sign Up</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #4f46e5, #22c1c3);
+    }
+
+    .signup-wrapper {
+      display: flex;
+      width: 950px;
+      max-width: 95%;
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    /* LEFT PANEL */
+    .signup-info {
+      flex: 1;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .signup-info h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+    }
+
+    .signup-info p {
+      font-size: 15px;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    /* RIGHT PANEL */
+    .signup-form {
+      flex: 1;
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .signup-form h2 {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+    }
+
+    .terms {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin: 15px 0 25px;
+      cursor: pointer;
+    }
+
+    .terms input {
+      width: 16px;
+      height: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(79,70,229,0.4);
+    }
+
+    .login-link {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .login-link a {
+      color: #4f46e5;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .signup-wrapper {
+        flex-direction: column;
+      }
+
+      .signup-info {
+        text-align: center;
+        padding: 40px 30px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="signup-wrapper">
+
+    <div class="signup-info">
+      <h1>Join Our Library</h1>
+      <p>
+        Create your account to borrow books, manage your reading history,
+        and access our digital library anytime.
+      </p>
+    </div>
+
+    <div class="signup-form">
+      <h2>Create Account</h2>
+      <p class="subtitle">Sign up to start borrowing books</p>
+
+      <form>
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="input-group">
+          <label>Student ID</label>
+          <input type="text" placeholder="Enter your student ID" required>
+        </div>
+
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" placeholder="Enter your email" required>
+        </div>
+
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" placeholder="Create a password" required>
+        </div>
+
+        <div class="input-group">
+          <label>Confirm Password</label>
+          <input type="password" placeholder="Confirm your password" required>
+        </div>
+
+        <label class="terms">
+          <input type="checkbox" required>
+          <span>I agree to the terms and conditions</span>
+        </label>
+
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <div class="login-link">
+        Already have an account?
+        <a href="login.html">Login</a>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
