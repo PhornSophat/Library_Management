@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Book - Library Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-section {
+            background-color: #f9f9f9;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .info-card.show {
+            display: block;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .validation-box {
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            display: none;
+            border-left: 4px solid;
+        }
+
+        .validation-box.show {
+            display: block;
+        }
+
+        .validation-box.success {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .validation-box.error {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-check {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-borrow {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-borrow:hover:not(:disabled) {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-borrow:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .borrow-section {
+            display: none;
+        }
+
+        .borrow-section.show {
+            display: block;
+        }
+
+        .nav-links {
+            margin-top: 30px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .required {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Borrow Book</h1>
+            <p class="subtitle">Manage book borrowing for library members</p>
+        </div>
+
+        <div class="form-section">
+            <div class="section-title">Member & Book Selection</div>
+
+            <div class="form-group">
+                <label for="memberId">Select Member <span class="required">*</span></label>
+                <select id="memberId" onchange="selectMember()">
+                    <option value="">-- Choose a member --</option>
+                    <option value="M001" data-name="John Smith" data-email="john@example.com" data-phone="555-0001" data-unreturned="0" data-overdue="false">John Smith</option>
+                    <option value="M002" data-name="Sarah Johnson" data-email="sarah@example.com" data-phone="555-0002" data-unreturned="0" data-overdue="false">Sarah Johnson</option>
+                    <option value="M003" data-name="Mike Davis" data-email="mike@example.com" data-phone="555-0003" data-unreturned="2" data-overdue="false">Mike Davis (Has unreturned books)</option>
+                    <option value="M004" data-name="Emma Wilson" data-email="emma@example.com" data-phone="555-0004" data-unreturned="0" data-overdue="true">Emma Wilson (Overdue books)</option>
+                </select>
+                
+                <div class="info-card" id="memberInfo">
+                    <div class="info-row">
+                        <span class="info-label">Name:</span>
+                        <span class="info-value" id="memberName">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value" id="memberEmail">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone:</span>
+                        <span class="info-value" id="memberPhone">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value" id="memberStatus">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bookId">Select Book <span class="required">*</span></label>
+                <select id="bookId" onchange="selectBook()">
+                    <option value="">-- Choose a book --</option>
+                    <option value="B001" data-title="The Great Gatsby" data-author="F. Scott Fitzgerald" data-isbn="978-0743273565" data-available="5">The Great Gatsby (5 copies)</option>
+                    <option value="B002" data-title="To Kill a Mockingbird" data-author="Harper Lee" data-isbn="978-0061120084" data-available="3">To Kill a Mockingbird (3 copies)</option>
+                    <option value="B003" data-title="1984" data-author="George Orwell" data-isbn="978-0451524935" data-available="0">1984 (Out of stock)</option>
+                    <option value="B004" data-title="Pride and Prejudice" data-author="Jane Austen" data-isbn="978-0141439518" data-available="4">Pride and Prejudice (4 copies)</option>
+                    <option value="B005" data-title="The Catcher in the Rye" data-author="J.D. Salinger" data-isbn="978-0316769174" data-available="2">The Catcher in the Rye (2 copies)</option>
+                </select>
+
+                <div class="info-card" id="bookInfo">
+                    <div class="info-row">
+                        <span class="info-label">Title:</span>
+                        <span class="info-value" id="bookTitle">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Author:</span>
+                        <span class="info-value" id="bookAuthor">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">ISBN:</span>
+                        <span class="info-value" id="bookIsbn">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Available Copies:</span>
+                        <span class="info-value" id="bookAvailable">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button type="button" class="btn-check" onclick="checkEligibility()">🔍 Check Eligibility</button>
+                <button type="button" class="btn-secondary" onclick="resetForm()">↺ Reset</button>
+            </div>
+        </div>
+
+        <div class="validation-box" id="validationMessage"></div>
+
+        <div class="form-section borrow-section" id="borrowSection">
+            <div class="section-title">Confirm Borrow</div>
+            <p style="color: #666; margin-bottom: 15px;">
+                <strong id="borrowSummary"></strong>
+            </p>
+            <div class="buttons">
+                <button type="button" class="btn-borrow" onclick="processBorrow()">✓ Confirm Borrow</button>
+                <button type="button" class="btn-secondary" onclick="cancelBorrow()">✗ Cancel</button>
+            </div>
+        </div>
+
+        <div class="nav-links">
+            <a href="return-book.html">📤 Return/Overdue Books</a>
+            <a href="/">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // Member data storage
+        const memberStorage = {
+            M001: { name: 'John Smith', email: 'john@example.com', phone: '555-0001', unreturned: 0, overdue: false },
+            M002: { name: 'Sarah Johnson', email: 'sarah@example.com', phone: '555-0002', unreturned: 0, overdue: false },
+            M003: { name: 'Mike Davis', email: 'mike@example.com', phone: '555-0003', unreturned: 2, overdue: false },
+            M004: { name: 'Emma Wilson', email: 'emma@example.com', phone: '555-0004', unreturned: 0, overdue: true }
+        };
+
+        // Book data storage
+        const bookStorage = {
+            B001: { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', isbn: '978-0743273565', available: 5 },
+            B002: { title: 'To Kill a Mockingbird', author: 'Harper Lee', isbn: '978-0061120084', available: 3 },
+            B003: { title: '1984', author: 'George Orwell', isbn: '978-0451524935', available: 0 },
+            B004: { title: 'Pride and Prejudice', author: 'Jane Austen', isbn: '978-0141439518', available: 4 },
+            B005: { title: 'The Catcher in the Rye', author: 'J.D. Salinger', isbn: '978-0316769174', available: 2 }
+        };
+
+        function selectMember() {
+            const select = document.getElementById('memberId');
+            const option = select.options[select.selectedIndex];
+            
+            if (!option.value) {
+                document.getElementById('memberInfo').classList.remove('show');
+                return;
+            }
+
+            const memberId = option.value;
+            const member = memberStorage[memberId];
+
+            document.getElementById('memberName').textContent = member.name;
+            document.getElementById('memberEmail').textContent = member.email;
+            document.getElementById('memberPhone').textContent = member.phone;
+            
+            let statusHtml = '';
+            if (member.overdue) {
+                statusHtml = '<span class="status-badge status-danger">⛔ SUSPENDED (Overdue)</span>';
+            } else if (member.unreturned > 0) {
+                statusHtml = `<span class="status-badge status-warning">⚠️ ${member.unreturned} Unreturned Book(s)</span>`;
+            } else {
+                statusHtml = '<span class="status-badge status-active">✓ Active</span>';
+            }
+            document.getElementById('memberStatus').innerHTML = statusHtml;
+            
+            document.getElementById('memberInfo').classList.add('show');
+        }
+
+        function selectBook() {
+            const select = document.getElementById('bookId');
+            const option = select.options[select.selectedIndex];
+            
+            if (!option.value) {
+                document.getElementById('bookInfo').classList.remove('show');
+                return;
+            }
+
+            const bookId = option.value;
+            const book = bookStorage[bookId];
+
+            document.getElementById('bookTitle').textContent = book.title;
+            document.getElementById('bookAuthor').textContent = book.author;
+            document.getElementById('bookIsbn').textContent = book.isbn;
+            document.getElementById('bookAvailable').textContent = book.available + ' copies';
+            
+            document.getElementById('bookInfo').classList.add('show');
+        }
+
+        function checkEligibility() {
+            const memberSelect = document.getElementById('memberId');
+            const bookSelect = document.getElementById('bookId');
+
+            if (!memberSelect.value || !bookSelect.value) {
+                showValidation('⚠️ Please select both member and book', 'error');
+                document.getElementById('borrowSection').classList.remove('show');
+                return;
+            }
+
+            const memberId = memberSelect.value;
+            const bookId = bookSelect.value;
+            const member = memberStorage[memberId];
+            const book = bookStorage[bookId];
+
+            let canBorrow = true;
+            let message = '';
+
+            // Business Logic: Check if member is suspended (has overdue books)
+            if (member.overdue) {
+                canBorrow = false;
+                message = '❌ CANNOT BORROW: Member is SUSPENDED due to overdue books. Must return overdue items first.';
+            }
+            // Business Logic: Check if member has unreturned books
+            else if (member.unreturned > 0) {
+                canBorrow = false;
+                message = `❌ CANNOT BORROW: Member has ${member.unreturned} unreturned book(s). Must return all books before borrowing more.`;
+            }
+            // Check if book is available
+            else if (book.available <= 0) {
+                canBorrow = false;
+                message = '❌ CANNOT BORROW: This book is out of stock. No copies available.';
+            }
+            // All checks passed
+            else {
+                canBorrow = true;
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + 14);
+                message = `✅ ELIGIBLE TO BORROW: "${book.title}" Due date: ${dueDate.toLocaleDateString()}`;
+            }
+
+            showValidation(message, canBorrow ? 'success' : 'error');
+
+            if (canBorrow) {
+                document.getElementById('borrowSummary').innerHTML = 
+                    `<strong>${member.name}</strong> will borrow <strong>"${book.title}"</strong><br>Borrow Period: 14 days`;
+                document.getElementById('borrowSection').classList.add('show');
+            } else {
+                document.getElementById('borrowSection').classList.remove('show');
+            }
+        }
+
+        function showValidation(message, type) {
+            const box = document.getElementById('validationMessage');
+            box.innerHTML = message;
+            box.classList.add('show');
+            box.classList.remove('success', 'error');
+            box.classList.add(type);
+        }
+
+        function processBorrow() {
+            const memberSelect = document.getElementById('memberId');
+            const bookSelect = document.getElementById('bookId');
+            const memberId = memberSelect.value;
+            const bookId = bookSelect.value;
+
+            const member = memberStorage[memberId];
+            const book = bookStorage[bookId];
+
+            // Store borrow record in localStorage for return page to access
+            const borrowRecord = {
+                id: 'BR' + Date.now(),
+                memberId: memberId,
+                bookId: bookId,
+                memberName: member.name,
+                bookTitle: book.title,
+                borrowDate: new Date().toLocaleDateString(),
+                dueDate: new Date(Date.now() + 14*24*60*60*1000).toLocaleDateString(),
+                status: 'BORROWED'
+            };
+
+            let borrowRecords = JSON.parse(localStorage.getItem('borrowRecords')) || [];
+            borrowRecords.push(borrowRecord);
+            localStorage.setItem('borrowRecords', JSON.stringify(borrowRecords));
+
+            alert(`✓ SUCCESS!\n\nBook borrowed:\n${book.title}\nMember: ${member.name}\n\nDue Date: ${borrowRecord.dueDate}`);
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('memberId').value = '';
+            document.getElementById('bookId').value = '';
+            document.getElementById('memberInfo').classList.remove('show');
+            document.getElementById('bookInfo').classList.remove('show');
+            document.getElementById('validationMessage').classList.remove('show');
+            document.getElementById('borrowSection').classList.remove('show');
+        }
+
+        function cancelBorrow() {
+            document.getElementById('borrowSection').classList.remove('show');
+            document.getElementById('validationMessage').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
