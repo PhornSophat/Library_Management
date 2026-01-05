@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
+@Repository("mongoMemberRepository")
 public interface MemberRepository extends MongoRepository<Member, String> {
     boolean existsByEmail(String email);
     Member findByEmail(String email);
