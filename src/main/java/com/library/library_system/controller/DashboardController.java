@@ -82,7 +82,7 @@ public class DashboardController {
                                 @RequestParam(required = false) String status,
                                 Model model) {
         model.addAttribute("userName", "Nisal Gunasekara");
-        model.addAttribute("activePage", "members");
+        model.addAttribute("activePage", "Admin");
         
         List<User> membersList;
         
@@ -132,13 +132,13 @@ public class DashboardController {
             });
     }
 
-    @GetMapping("/members/add")
-    public String showAddMemberForm(Model model) {
-        model.addAttribute("userName", "Nisal Gunasekara");
-        model.addAttribute("activePage", "members");
-        model.addAttribute("user", new User());
-        return "fragments/add_member";
-    }
+    // @GetMapping("/members/add")
+    // public String showAddMemberForm(Model model) {
+    //     model.addAttribute("userName", "Nisal Gunasekara");
+    //     model.addAttribute("activePage", "members");
+    //     model.addAttribute("user", new User());
+    //     return "fragments/add_member";
+    // }
 
     @PostMapping("/members/add")
     public String addMember(@RequestParam String name,
@@ -243,7 +243,7 @@ public class DashboardController {
         model.addAttribute("userName", "Nisal Gunasekara");
         model.addAttribute("activePage", "books");
         model.addAttribute("book", new Book());
-        return "dashboard/add_book";
+        return "fragments/add_book";
     }
 
     @PostMapping("/books/add")
