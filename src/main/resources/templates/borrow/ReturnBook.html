@@ -406,13 +406,13 @@
         <!-- TABS SECTION -->
         <div class="form-section" id="tabsContainer" style="display: none;">
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('borrowed')">
+                <button class="tab-btn active" onclick="switchTab('borrowed', this)">
                     📖 Borrowed Books
                 </button>
-                <button class="tab-btn" onclick="switchTab('overdue')">
+                <button class="tab-btn" onclick="switchTab('overdue', this)">
                     ⏰ Overdue Books
                 </button>
-                <button class="tab-btn" onclick="switchTab('returned')">
+                <button class="tab-btn" onclick="switchTab('returned', this)">
                     ✓ Returned Books
                 </button>
             </div>
@@ -517,25 +517,46 @@
         const FINE_PER_DAY = 1000;
 
         // Book Database mapping for inventory updates
-        const booksDB = {
-            B001: { title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', isbn: '978-0743273565', available: 5 },
-            B002: { title: 'To Kill a Mockingbird', author: 'Harper Lee', isbn: '978-0061120084', available: 3 },
-            B003: { title: '1984', author: 'George Orwell', isbn: '978-0451524935', available: 0 },
-            B004: { title: 'Pride and Prejudice', author: 'Jane Austen', isbn: '978-0141439518', available: 4 },
-            B005: { title: 'The Catcher in the Rye', author: 'J.D. Salinger', isbn: '978-0316769174', available: 2 },
-            B006: { title: 'Jane Eyre', author: 'Charlotte Brontë', isbn: '978-0141441146', available: 3 }
-        };
+        // Book inventory (loaded from localStorage or external JSON)
+        let booksDB = {};
 
-        // Load book inventory from localStorage
-        function loadBooksFromStorage() {
+        // Load book inventory from localStorage or external JSON file
+        async function loadBooksFromStorage() {
             try {
                 const storedBooks = localStorage.getItem('booksDB');
                 if (storedBooks) {
-                    const stored = JSON.parse(storedBooks);
-                    Object.assign(booksDB, stored);
+                    const parsed = JSON.parse(storedBooks);
+                    if (typeof parsed === 'object' && parsed !== null) {
+                        booksDB = parsed;
+                        console.log('Loaded book inventory from localStorage');
+                        return;
+                    }
+                }
+
+                // Try fetching the static JSON file
+                try {
+                    const res = await fetch('/static/data/books.json');
+                    if (res.ok) {
+                        booksDB = await res.json();
+                        localStorage.setItem('booksDB', JSON.stringify(booksDB));
+                        console.log('Loaded book inventory from /static/data/books.json');
+                        return;
+                    }
+                } catch (e) {
+                    try {
+                        const res2 = await fetch('/data/books.json');
+                        if (res2.ok) {
+                            booksDB = await res2.json();
+                            localStorage.setItem('booksDB', JSON.stringify(booksDB));
+                            console.log('Loaded book inventory from /data/books.json');
+                            return;
+                        }
+                    } catch (e2) {
+                        console.warn('No external books JSON found; continuing with empty inventory');
+                    }
                 }
             } catch (error) {
-                console.error('Error loading books from storage:', error);
+                console.error('Error loading books from storage or JSON:', error);
             }
         }
 
@@ -548,10 +569,39 @@
             }
         }
 
-        // Find book ID by title
+        // Listen for external changes to localStorage so UI stays in sync across tabs/pages
+        window.addEventListener('storage', (e) => {
+            try {
+                if (!e.key) return;
+                if (e.key === 'booksDB') {
+                    booksDB = JSON.parse(e.newValue || '{}') || {};
+                    console.log('booksDB updated from storage event');
+                }
+
+                if (e.key === 'borrowRecords') {
+                    // reload borrowRecords and refresh UI to reflect remote changes
+                    borrowRecords = loadBorrowRecordsFromStorage();
+                    populateMemberDropdown();
+                    updateBorrowRecordStatuses();
+                    console.log('borrowRecords updated from storage event');
+                }
+
+                // Refresh current view if member selected
+                const memberSelect = document.getElementById('memberId');
+                if (memberSelect && memberSelect.value) {
+                    loadMemberData();
+                }
+            } catch (err) {
+                console.warn('Error handling storage event:', err);
+            }
+        });
+
+        // Find book ID by title (case-insensitive)
         function getBookIdByTitle(bookTitle) {
+            if (!bookTitle) return null;
+            const normalized = bookTitle.trim().toLowerCase();
             for (let bookId in booksDB) {
-                if (booksDB[bookId].title === bookTitle) {
+                if ((booksDB[bookId].title || '').trim().toLowerCase() === normalized) {
                     return bookId;
                 }
             }
@@ -857,12 +907,12 @@
             }
         }
 
-        function switchTab(tabName) {
+        function switchTab(tabName, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('show'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
+
             document.getElementById(tabName).classList.add('show');
-            event.target.classList.add('active');
+            if (btn && btn.classList) btn.classList.add('active');
         }
 
         function filterTable(tabName) {
@@ -878,13 +928,13 @@
         }
 
         // Initialize page - load records from localStorage on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            loadBooksFromStorage(); // Load book inventory
+        window.addEventListener('DOMContentLoaded', async function() {
+            await loadBooksFromStorage(); // Load book inventory (may fetch JSON)
             borrowRecords = loadBorrowRecordsFromStorage();
             populateMemberDropdown(); // Populate members from borrow records
             updateBorrowRecordStatuses(); // Update statuses when page loads
             console.log('✓ Borrow records loaded from storage:', borrowRecords.length, 'records');
-            console.log('✓ Book inventory loaded from storage');
+            console.log('✓ Book inventory loaded');
             console.log('✓ Member dropdown populated from borrow records');
         });
     </script>
