@@ -411,6 +411,8 @@
     </style>
   </head>
   <body class="bg-gradient-to-br from-purple-600 to-purple-700 min-h-screen">
+    <!-- Include SweetAlert2 for better alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- TOP NAVIGATION -->
     <nav class="bg-white shadow-lg border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-6 py-4">
@@ -581,7 +583,7 @@
                 <p class="text-sm text-gray-700 leading-relaxed">
                   <strong>1.</strong> Book is available<br />
                   <strong>2.</strong> Member has NO overdue books<br />
-                  <strong>3.</strong> Member has NO unreturned books<br />
+                  <strong>3.</strong> Member has fewer than 5 borrowed books<br />
                   &darr;<br />
                   <em>Create borrow record with 14-day lending period</em>
                 </p>
@@ -593,6 +595,7 @@
                   <strong>1.</strong> Book out of stock<br />
                   <strong>2.</strong> Member has OVERDUE books &rarr; <strong>SUSPENDED</strong><br />
                   <strong>3.</strong> Member has UNRETURNED books &rarr; <strong>CANNOT BORROW</strong><br />
+                  <strong>4.</strong> Member has 5 borrowed books &rarr; <strong>LIMIT REACHED</strong><br />
                   <br />
                   <em>Return items first</em>
                 </p>
@@ -618,7 +621,34 @@
       <p>&copy; 2026 Library Management System. All rights reserved.</p>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+      // Show SweetAlert2 for error messages
+      const errorMessage = /*[[${errorMessage}]]*/ null;
+      const successMessage = /*[[${successMessage}]]*/ null;
+      
+      if (errorMessage) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Cannot Borrow Book',
+          html: errorMessage,
+          confirmButtonColor: '#667eea',
+          backdrop: true,
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+      }
+      
+      if (successMessage) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Book Borrowed Successfully',
+          html: successMessage,
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+
       // Book selection functionality
       function selectBook(element) {
         // Remove previous selection
@@ -664,5 +694,3 @@
     </script>
   </body>
 </html>
-        M001: {
-          name: "Bunarith Soksim",

@@ -5,6 +5,7 @@
     <title th:text="${book.title} + ' - Book Details'">Book Details</title>
     <link rel="stylesheet" th:href="@{/css/output.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <!-- Top Navigation -->
@@ -215,5 +216,34 @@
     <div class="max-w-7xl mx-auto px-6 py-8 text-center text-gray-500">
         <p>&copy; 2026 Library Management System. All rights reserved.</p>
     </div>
+
+    <script>
+      // Show SweetAlert2 for error and success messages
+      const errorMessage = [[${errorMessage}]];
+      const successMessage = [[${successMessage}]];
+      
+      if (errorMessage) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Cannot Borrow Book',
+          html: errorMessage,
+          confirmButtonColor: '#667eea',
+          backdrop: true,
+          allowOutsideClick: false,
+          allowEscapeKey: false
+        });
+      }
+      
+      if (successMessage) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Book Borrowed Successfully',
+          html: successMessage,
+          confirmButtonColor: '#28a745',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+    </script>
 </body>
 </html>
