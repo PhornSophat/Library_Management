@@ -17,7 +17,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #4f46e5, #22c1c3);
+      background: linear-gradient(135deg, #2c1810, #4a3428, #1a1410);
+      padding: 30px;
     }
 
     .signup-wrapper {
@@ -25,31 +26,46 @@
       width: 950px;
       max-width: 95%;
       background: #fff;
-      border-radius: 18px;
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 24px 50px rgba(0,0,0,0.18);
     }
 
     /* LEFT PANEL */
     .signup-info {
       flex: 1;
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
       color: #fff;
       padding: 60px 40px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .library-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
 
     .signup-info h1 {
       font-size: 32px;
       margin-bottom: 15px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
     }
 
     .signup-info p {
       font-size: 15px;
       line-height: 1.6;
-      opacity: 0.9;
+      opacity: 0.95;
+      position: relative;
+      z-index: 1;
     }
 
     /* RIGHT PANEL */
@@ -64,37 +80,57 @@
     .signup-form h2 {
       font-size: 26px;
       margin-bottom: 8px;
+      font-weight: 700;
     }
 
     .subtitle {
       font-size: 14px;
-      color: #666;
+      color: #6b7280;
       margin-bottom: 25px;
     }
 
     .input-group {
       margin-bottom: 16px;
+      position: relative;
     }
 
     label {
       display: block;
       font-size: 14px;
       margin-bottom: 6px;
-      color: #333;
+      color: #374151;
     }
 
     input {
       width: 100%;
       padding: 12px 14px;
+      padding-right: 45px;
       border-radius: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #e6e6e6;
       font-size: 14px;
+      background: #fff;
+      transition: all 0.3s ease;
     }
 
     input:focus {
       outline: none;
-      border-color: #4f46e5;
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+      border-color: #8B6F47;
+      box-shadow: 0 8px 24px rgba(139, 111, 71, 0.15);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 33px;
+      cursor: pointer;
+      color: #6b7280;
+      transition: color 0.2s;
+      font-size: 18px;
+      user-select: none;
+    }
+
+    .password-toggle:hover {
+      color: #8B6F47;
     }
 
     .terms {
@@ -104,41 +140,51 @@
       font-size: 13px;
       margin: 15px 0 25px;
       cursor: pointer;
+      user-select: none;
     }
 
     .terms input {
       width: 16px;
       height: 16px;
+      cursor: pointer;
     }
 
     button {
       width: 100%;
       padding: 12px;
       border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      border-radius: 12px;
+      background: linear-gradient(90deg, #8B6F47, #A0826D);
       color: #fff;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      box-shadow: 0 10px 30px rgba(139, 111, 71, 0.25);
+      transition: all 0.3s ease;
     }
 
     button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(79,70,229,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(139, 111, 71, 0.35);
+      background: linear-gradient(90deg, #6B5537, #8B6F47);
     }
 
     .login-link {
       margin-top: 20px;
       text-align: center;
       font-size: 14px;
-      color: #555;
+      color: #9ca3af;
     }
 
     .login-link a {
-      color: #4f46e5;
+      color: #8B6F47;
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .login-link a:hover {
+      color: #6B5537;
     }
 
     /* RESPONSIVE */
@@ -150,6 +196,10 @@
       .signup-info {
         text-align: center;
         padding: 40px 30px;
+      }
+
+      .library-image {
+        display: none;
       }
     }
   </style>
@@ -165,6 +215,12 @@
         Create your account to borrow books, manage your reading history,
         and access our digital library anytime.
       </p>
+
+      <!-- Library Image from External Source -->
+      <img src="https://imgs.search.brave.com/jxSYTEC8nmSxSh_MxZ7RDxac3xfSyef0P6-KQjVt-zQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMudW5zcGxhc2gu/Y29tL3Bob3RvLTE0/ODE2Mjc4MzQ4NzYt/Yjc4MzNlOGY1NTcw/P2ZtPWpwZyZxPTYw/Jnc9MzAwMCZpeGxp/Yj1yYi00LjEuMCZp/eGlkPU0zd3hNakEz/ZkRCOE1IeHpaV0Z5/WTJoOE5IeDhiR2xp/Y21GeWVYeGxibnd3/Zkh3d2ZIeDhNQT09" 
+           alt="Library" 
+           class="library-image" 
+           style="object-fit: cover; border-radius: 12px;" />
     </div>
 
     <div class="signup-form">
@@ -184,12 +240,14 @@
 
         <div class="input-group">
           <label>Password</label>
-          <input type="password" name="password" placeholder="Create a password (min 6 chars)" required minlength="6">
+          <input type="password" id="password" name="password" placeholder="Create a password (min 6 chars)" required minlength="6">
+          <span class="password-toggle" onclick="togglePassword('password', this)">👁️</span>
         </div>
 
         <div class="input-group">
           <label>Confirm Password</label>
-          <input type="password" name="confirmPassword" placeholder="Confirm your password" required>
+          <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+          <span class="password-toggle" onclick="togglePassword('confirmPassword', this)">👁️</span>
         </div>
 
         <label class="terms">
@@ -210,6 +268,20 @@
     </div>
 
   </div>
+
+  <script>
+    function togglePassword(inputId, toggleIcon) {
+      const passwordInput = document.getElementById(inputId);
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '👁️‍🗨️';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+      }
+    }
+  </script>
 
 </body>
 </html>
