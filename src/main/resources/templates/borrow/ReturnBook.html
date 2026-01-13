@@ -404,132 +404,100 @@
     <div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px;">
     <div class="container">
         <div class="header">
-            <h1>📤 Return / Overdue Books</h1>
+            <h1><i class="fa-solid fa-book-bookmark"></i> Return / Overdue Books</h1>
             <p class="subtitle">Manage book returns and track overdue items</p>
         </div>
 
-        <!-- MEMBER SELECTION -->
+        <!-- MEMBER INFO -->
         <div class="form-section">
-            <div class="section-title">Select Member</div>
-            <div class="form-group">
-                <label for="memberId">Choose Member with Borrowed Books <span class="required">*</span></label>
-                <select id="memberId" onchange="loadMemberData()">
-                    <option value="">-- Select a member --</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- MEMBER STATUS BOX -->
-        <div class="member-info-box" id="memberInfoBox">
-            <strong id="memberNameDisplay"></strong> - Borrowing Status
-        </div>
-
-        <!-- STATISTICS CARDS -->
-        <div class="stats" id="statsContainer" style="display: none;">
-            <div class="stat-card">
-                <div class="stat-value" id="totalBorrowed">0</div>
-                <div class="stat-label">Borrowed Books</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="overdueBooksCount">0</div>
-                <div class="stat-label">Overdue Books</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="totalFine">0</div>
-                <div class="stat-label">Total Fine</div>
-            </div>
-        </div>
-
-        <!-- TABS SECTION -->
-        <div class="form-section" id="tabsContainer" style="display: none;">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('borrowed')">
-                    📖 Borrowed Books
-                </button>
-                <button class="tab-btn" onclick="switchTab('overdue')">
-                    ⏰ Overdue Books
-                </button>
-                <button class="tab-btn" onclick="switchTab('returned')">
-                    ✓ Returned Books
-                </button>
-            </div>
-
-            <!-- BORROWED BOOKS TAB -->
-            <div id="borrowed" class="tab-content show">
-                <div class="section-title">Current Borrowed Books</div>
-                <div class="search-box">
-                    <input type="text" id="borrowedSearch" placeholder="Search by book title..." onkeyup="filterTable('borrowed')">
+            <div class="section-title">Your Account Information</div>
+            <div class="member-info-box" style="display: block; background: white; border: 2px solid #667eea; border-radius: 8px; padding: 15px; margin-top: 10px;">
+                <div class="status-item">
+                    <span class="status-label">Member Name:</span>
+                    <span class="status-value" th:text="${member.name}">-</span>
                 </div>
+                <div class="status-item">
+                    <span class="status-label">Member ID:</span>
+                    <span class="status-value" th:text="${member.id}">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Email:</span>
+                    <span class="status-value" th:text="${member.email}">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Current Loans:</span>
+                    <span class="status-value" th:text="${loanCount}">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Status:</span>
+                    <span class="badge" 
+                          th:classappend="${member.status.toString() == 'Active' ? 'badge-success' : 'badge-danger'}"
+                          th:text="${member.status}">Active</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUCCESS/ERROR MESSAGES -->
+        <div th:if="${successMessage}" class="alert alert-success show">
+            <strong>✓ Success!</strong> <span th:text="${successMessage}"></span>
+        </div>
+        
+        <div th:if="${errorMessage}" class="alert alert-danger show">
+            <strong>✗ Error!</strong> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <!-- YOUR BORROWED BOOKS -->
+        <div class="form-section">
+            <div class="section-title">Your Borrowed Books</div>
+            
+            <div th:if="${memberLoans != null and !memberLoans.isEmpty()}">
                 <div class="table-responsive">
-                    <table id="borrowedTable">
+                    <table>
                         <thead>
                             <tr>
-                                <th>Record ID</th>
                                 <th>Book Title</th>
+                                <th>Author</th>
                                 <th>Borrow Date</th>
                                 <th>Due Date</th>
-                                <th>Days Left</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="borrowedBody"></tbody>
-                    </table>
-                </div>
-                <div class="empty-state" id="borrowedEmpty">No borrowed books</div>
-            </div>
-
-            <!-- OVERDUE BOOKS TAB -->
-            <div id="overdue" class="tab-content">
-                <div class="section-title">⚠️ Overdue Books (Member Suspended)</div>
-                <p style="color: #d32f2f; margin-bottom: 15px; font-weight: 600;">
-                    ⛔ Members with overdue books are SUSPENDED from borrowing. They must return all overdue items first.
-                </p>
-                <div class="search-box">
-                    <input type="text" id="overdueSearch" placeholder="Search by book title..." onkeyup="filterTable('overdue')">
-                </div>
-                <div class="table-responsive">
-                    <table id="overdueTable">
-                        <thead>
-                            <tr>
-                                <th>Record ID</th>
-                                <th>Book Title</th>
-                                <th>Due Date</th>
-                                <th>Days Overdue</th>
-                                <th>Fine/Day</th>
-                                <th>Total Fine</th>
-                                <th>Status</th>
-                                <th>Action</th>
+                        <tbody>
+                            <tr th:each="loan : ${memberLoans}">
+                                <td th:text="${loan.bookTitle}">Book Title</td>
+                                <td th:text="${loan.bookAuthor != null ? loan.bookAuthor : 'N/A'}">Author</td>
+                                <td th:text="${#temporals.format(loan.borrowDate, 'MMM dd, yyyy')}">Date</td>
+                                <td th:text="${#temporals.format(loan.dueDate, 'MMM dd, yyyy')}">Date</td>
+                                <td>
+                                    <span class="status-badge"
+                                          th:classappend="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'badge-overdue' : 'badge-borrowed'"
+                                          th:text="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'Overdue' : 'Borrowed'">
+                                        Borrowed
+                                    </span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/member/return/submit}" method="post" style="display: inline;">
+                                        <input type="hidden" name="loanId" th:value="${loan.id}">
+                                        <button type="submit" class="action-btn"
+                                                style="background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                                            Return Book
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody id="overdueBody"></tbody>
+                        </tbody>
                     </table>
                 </div>
-                <div class="empty-state" id="overdueEmpty">No overdue books</div>
             </div>
-
-            <!-- RETURNED BOOKS TAB -->
-            <div id="returned" class="tab-content">
-                <div class="section-title">Returned Books History</div>
-                <div class="search-box">
-                    <input type="text" id="returnedSearch" placeholder="Search by book title..." onkeyup="filterTable('returned')">
-                </div>
-                <div class="table-responsive">
-                    <table id="returnedTable">
-                        <thead>
-                            <tr>
-                                <th>Record ID</th>
-                                <th>Book Title</th>
-                                <th>Return Date</th>
-                                <th>Due Date</th>
-                                <th>Fine Amount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="returnedBody"></tbody>
-                    </table>
-                </div>
-                <div class="empty-state" id="returnedEmpty">No returned books</div>
+            
+            <div th:if="${memberLoans == null or memberLoans.isEmpty()}" class="empty-state" style="display: block; text-align: center; padding: 40px; color: #999;">
+                <i class="fa-solid fa-book-open" style="font-size: 48px; color: #ddd; margin-bottom: 16px;"></i>
+                <p style="font-size: 16px; font-weight: 600;">No borrowed books</p>
+                <p style="font-size: 14px; margin-top: 8px;">You don't have any books on loan at the moment.</p>
+                <a href="/member/borrow" style="display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">
+                    <i class="fa-solid fa-book-plus"></i> Borrow a Book
+                </a>
             </div>
         </div>
 
