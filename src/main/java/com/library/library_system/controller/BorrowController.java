@@ -58,6 +58,14 @@ public class BorrowController {
                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
                              RedirectAttributes redirectAttributes) {
         
+        // Check if member has already borrowed 5 books
+        List<Loan> activeBorrows = loanService.getActiveLoansForMember(memberId);
+        if (activeBorrows.size() >= 5) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Cannot borrow: You have already borrowed 5 books. Please return a book before borrowing another.");
+            return "redirect:/borrow";
+        }
+        
         // Borrow logic: Check if book is available and member exists
         return loanService.borrowBook(bookId, memberId, dueDate)
             .map(loan -> {

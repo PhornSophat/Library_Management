@@ -29,6 +29,14 @@ public class LoanService {
             if (!"AVAILABLE".equals(book.getStatus())) {
                 return Optional.empty();
             }
+            
+            // Check if member has already borrowed 5 books
+            List<Loan> activeBorrows = loanRepository.findByMemberIdAndStatus(memberId, "BORROWED");
+            if (activeBorrows.size() >= 5) {
+                // Member has reached the limit of 5 borrowed books
+                return Optional.empty();
+            }
+            
             return userRepository.findById(memberId).map(member -> {
                 Loan loan = new Loan();
                 loan.setBookId(book.getId());
@@ -81,6 +89,14 @@ public class LoanService {
 
     public List<Loan> getActiveLoansForMember(String memberId) {
         return loanRepository.findByMemberIdAndStatus(memberId, "BORROWED");
+    }
+
+    public int getActiveBorrowCount(String memberId) {
+        return loanRepository.findByMemberIdAndStatus(memberId, "BORROWED").size();
+    }
+
+    public boolean canBorrow(String memberId) {
+        return getActiveBorrowCount(memberId) < 5;
     }
 
     public List<Loan> getLoansForMember(String memberId) {

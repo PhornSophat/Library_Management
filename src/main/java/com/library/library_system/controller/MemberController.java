@@ -1,6 +1,7 @@
 package com.library.library_system.controller;
 
 import com.library.library_system.model.User;
+import com.library.library_system.model.Loan;
 import com.library.library_system.service.UserService;
 import com.library.library_system.service.LoanService;
 import com.library.library_system.service.BookService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import java.util.List;
 
 @Controller
 @RequestMapping("/member")
@@ -106,6 +108,14 @@ public class MemberController {
         
         return userService.findByEmail(email)
             .flatMap(member -> {
+                // Check if member has already borrowed 5 books
+                List<Loan> activeBorrows = loanService.getActiveLoansForMember(member.getId());
+                if (activeBorrows.size() >= 5) {
+                    redirectAttributes.addFlashAttribute("errorMessage", 
+                        "You have already borrowed 5 books (the maximum limit). Please return a book before borrowing another.");
+                    return java.util.Optional.empty();
+                }
+                
                 // Set default due date if not provided (2 weeks from now)
                 java.time.LocalDate borrowDueDate = dueDate != null ? dueDate : java.time.LocalDate.now().plusWeeks(2);
                 
@@ -124,7 +134,9 @@ public class MemberController {
     }
 
     @GetMapping("/borrow")
-    public String memberBorrow(Authentication authentication, Model model) {
+    public String memberBorrow(Authentication authentication, 
+                              @RequestParam(required = false) String bookId,
+                              Model model) {
         String email = authentication.getName();
         
         return userService.findByEmail(email)
@@ -133,6 +145,14 @@ public class MemberController {
                 model.addAttribute("availableBooks", bookService.getAvailableBooks());
                 model.addAttribute("activeLoans", loanService.getActiveLoansForMember(member.getId()));
                 model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                
+                // If bookId is provided, pre-select the book
+                if (bookId != null && !bookId.isEmpty()) {
+                    bookService.getBookById(bookId).ifPresent(book -> {
+                        model.addAttribute("selectedBook", book);
+                    });
+                }
+                
                 return "borrow/BorrowBook";
             })
             .orElse("redirect:/login");
