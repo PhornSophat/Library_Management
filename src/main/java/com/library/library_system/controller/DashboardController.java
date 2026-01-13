@@ -47,7 +47,10 @@ public class DashboardController {
         // 3. User Stats (Using UserService)
         model.addAttribute("totalUsers", userService.getTotalMemberCount());
 
-        // 4. Admin Component Data
+        // 4. Pending Returns Notification
+        model.addAttribute("pendingReturnsCount", loanService.getPendingReturns().size());
+
+        // 5. Admin Component Data
         model.addAttribute("adminData", userService.getAdmins());
         model.addAttribute("adminTitle", "BookWorm Admins");
 
@@ -383,6 +386,30 @@ public class DashboardController {
             // Change from /dashboard to /
             return "redirect:/?status=error";
         }
+    }
+
+    @GetMapping("/admin/pending-returns")
+    public String showPendingReturns(Model model) {
+        model.addAttribute("userName", "Nisal Gunasekara");
+        model.addAttribute("activePage", "pending-returns");
+        model.addAttribute("pendingReturns", loanService.getPendingReturns());
+        model.addAttribute("pendingCount", loanService.getPendingReturns().size());
+        return "dashboard/pending_returns";
+    }
+
+    @PostMapping("/admin/confirm-return/{loanId}")
+    public String confirmReturn(@PathVariable String loanId, RedirectAttributes redirectAttributes) {
+        return loanService.confirmReturn(loanId)
+            .map(loan -> {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Return verified for '" + loan.getBookTitle() + "'. Book is now available.");
+                return "redirect:/admin/pending-returns";
+            })
+            .orElseGet(() -> {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Cannot verify return. Loan not found.");
+                return "redirect:/admin/pending-returns";
+            });
     }
 
 }

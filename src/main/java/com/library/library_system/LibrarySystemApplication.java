@@ -26,9 +26,7 @@ public class LibrarySystemApplication {
             try {
                 System.out.println("--------------------------------------");
                 System.out.println("Checking MongoDB Connection...");
-                long count = repository.count();
                 System.out.println("CONNECTION SUCCESSFUL!");
-                System.out.println("Number of members in database: " + count);
                 System.out.println("--------------------------------------");
             } catch (Exception e) {
                 System.out.println("--------------------------------------");

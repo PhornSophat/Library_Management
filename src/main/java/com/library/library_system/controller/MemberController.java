@@ -147,6 +147,7 @@ public class MemberController {
                 model.addAttribute("member", member);
                 model.addAttribute("memberLoans", loanService.getActiveLoansForMember(member.getId()));
                 model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                model.addAttribute("pendingReturnsCount", loanService.getPendingReturns().size());
                 return "borrow/ReturnBook";
             })
             .orElse("redirect:/login");
@@ -182,12 +183,12 @@ public class MemberController {
         return loanService.returnLoan(loanId)
             .map(loan -> {
                 redirectAttributes.addFlashAttribute("successMessage", 
-                    "Successfully returned '" + loan.getBookTitle() + "'.");
+                    "Return request submitted for '" + loan.getBookTitle() + "'. Waiting for admin verification.");
                 return "redirect:/member/return";
             })
             .orElseGet(() -> {
                 redirectAttributes.addFlashAttribute("errorMessage", 
-                    "Cannot return book. Please try again.");
+                    "Cannot submit return request. Please try again.");
                 return "redirect:/member/return";
             });
     }

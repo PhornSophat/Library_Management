@@ -52,16 +52,31 @@ public class LoanService {
 
     public Optional<Loan> returnLoan(String loanId) {
         return loanRepository.findById(loanId).map(loan -> {
-            loan.setStatus("RETURNED");
+            loan.setStatus("PENDING_RETURN");
             loan.setReturnDate(LocalDate.now());
             loanRepository.save(loan);
-
-            bookRepository.findById(loan.getBookId()).ifPresent(book -> {
-                book.setStatus("AVAILABLE");
-                bookRepository.save(book);
-            });
+            // Book remains BORROWED until admin confirms return
             return loan;
         });
+    }
+
+    public Optional<Loan> confirmReturn(String loanId) {
+        return loanRepository.findById(loanId).map(loan -> {
+            if ("PENDING_RETURN".equals(loan.getStatus())) {
+                loan.setStatus("RETURNED");
+                loanRepository.save(loan);
+
+                bookRepository.findById(loan.getBookId()).ifPresent(book -> {
+                    book.setStatus("AVAILABLE");
+                    bookRepository.save(book);
+                });
+            }
+            return loan;
+        });
+    }
+
+    public List<Loan> getPendingReturns() {
+        return loanRepository.findByStatus("PENDING_RETURN");
     }
 
     public List<Loan> getActiveLoansForMember(String memberId) {

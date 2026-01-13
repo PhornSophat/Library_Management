@@ -79,6 +79,7 @@ public class BorrowController {
     public String showReturnPage(Model model) {
         model.addAttribute("activeLoans", loanService.getAllActiveLoans());
         model.addAttribute("activePage", "return");
+        model.addAttribute("pendingReturnsCount", loanService.getPendingReturns().size());
         return "borrow/ReturnBook";
     }
 

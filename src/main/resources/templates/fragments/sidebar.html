@@ -29,6 +29,18 @@
             <i class="fa-solid fa-book w-5 text-center"></i>
             <span>Books</span>
         </a>
+
+        <a th:href="@{/admin/pending-returns}" 
+            class="flex items-center px-4 py-3 rounded-lg transition-all duration-200 gap-x-2 relative"
+            th:classappend="${activePage == 'pending-returns' ? 
+                'bg-white text-black shadow-lg font-bold' : 
+                'text-gray-400 hover:bg-gray-800 hover:text-white'}">
+            <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
+            <span>Pending Returns</span>
+            <span th:if="${pendingReturnsCount != null and pendingReturnsCount > 0}" 
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full"
+                  th:text="${pendingReturnsCount}">0</span>
+        </a>
     </nav>
     
     <!-- Logout Section -->

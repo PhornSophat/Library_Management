@@ -258,6 +258,33 @@
             background-color: #d4edda;
             border-color: #c3e6cb;
             color: #155724;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert.fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
         }
 
         /* EMPTY STATE */
@@ -438,7 +465,7 @@
         </div>
 
         <!-- SUCCESS/ERROR MESSAGES -->
-        <div th:if="${successMessage}" class="alert alert-success show">
+        <div th:if="${successMessage}" class="alert alert-success show" id="successAlert">
             <strong>✓ Success!</strong> <span th:text="${successMessage}"></span>
         </div>
         
@@ -470,20 +497,30 @@
                                 <td th:text="${#temporals.format(loan.borrowDate, 'MMM dd, yyyy')}">Date</td>
                                 <td th:text="${#temporals.format(loan.dueDate, 'MMM dd, yyyy')}">Date</td>
                                 <td>
-                                    <span class="status-badge"
+                                    <span th:if="${loan.status == 'PENDING_RETURN'}" class="status-badge badge-pending"
+                                          style="background-color: #fef3c7; color: #92400e;">
+                                        Pending Verification
+                                    </span>
+                                    <span th:if="${loan.status != 'PENDING_RETURN'}" class="status-badge"
                                           th:classappend="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'badge-overdue' : 'badge-borrowed'"
                                           th:text="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'Overdue' : 'Borrowed'">
                                         Borrowed
                                     </span>
                                 </td>
                                 <td>
-                                    <form th:action="@{/member/return/submit}" method="post" style="display: inline;">
+                                    <form th:if="${loan.status != 'PENDING_RETURN'}" th:action="@{/member/return/submit}" method="post" style="display: inline;" 
+                                          onsubmit="return confirmReturn(this, event)">
                                         <input type="hidden" name="loanId" th:value="${loan.id}">
+                                        <input type="hidden" name="bookTitle" th:value="${loan.bookTitle}">
                                         <button type="submit" class="action-btn"
                                                 style="background-color: #28a745; color: white; padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; font-weight: 600;">
                                             Return Book
                                         </button>
                                     </form>
+                                    <span th:if="${loan.status == 'PENDING_RETURN'}" 
+                                          style="color: #92400e; font-size: 13px; font-weight: 600;">
+                                        <i class="fa-solid fa-clock"></i> Awaiting Admin
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -530,6 +567,18 @@
 
     <script>
         const FINE_PER_DAY = 1000;
+
+        // Confirmation dialog for return book
+        function confirmReturn(form, event) {
+            event.preventDefault();
+            const bookTitle = form.querySelector('input[name="bookTitle"]').value;
+            
+            if (confirm(`Are you sure you want to return "${bookTitle}"?\n\nThis will send a return request to the admin for verification.`)) {
+                form.submit();
+                return true;
+            }
+            return false;
+        }
 
         // Book Database mapping for inventory updates
         const booksDB = {
@@ -901,6 +950,25 @@
             console.log('✓ Borrow records loaded from storage:', borrowRecords.length, 'records');
             console.log('✓ Book inventory loaded from storage');
             console.log('✓ Member dropdown populated from borrow records');
+
+            // Auto-dismiss success message after 5 seconds only if it contains "verification" message
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                const messageText = successAlert.textContent.toLowerCase();
+                // Check if message mentions verification or awaiting admin
+                if (messageText.includes('verification') || messageText.includes('waiting') || messageText.includes('awaiting')) {
+                    // This message stays visible - admin needs to see it for confirmation
+                    console.log('✓ Verification message displayed - waiting for admin confirmation');
+                } else {
+                    // Other success messages fade out after 5 seconds
+                    setTimeout(function() {
+                        successAlert.classList.add('fade-out');
+                        setTimeout(function() {
+                            successAlert.style.display = 'none';
+                        }, 500);
+                    }, 5000);
+                }
+            }
         });
     </script>
 </body>
