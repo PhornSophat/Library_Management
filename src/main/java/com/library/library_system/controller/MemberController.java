@@ -122,4 +122,73 @@ public class MemberController {
                 return "redirect:/member/library";
             });
     }
+
+    @GetMapping("/borrow")
+    public String memberBorrow(Authentication authentication, Model model) {
+        String email = authentication.getName();
+        
+        return userService.findByEmail(email)
+            .map(member -> {
+                model.addAttribute("member", member);
+                model.addAttribute("availableBooks", bookService.getAvailableBooks());
+                model.addAttribute("activeLoans", loanService.getActiveLoansForMember(member.getId()));
+                model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                return "borrow/BorrowBook";
+            })
+            .orElse("redirect:/login");
+    }
+
+    @GetMapping("/return")
+    public String memberReturn(Authentication authentication, Model model) {
+        String email = authentication.getName();
+        
+        return userService.findByEmail(email)
+            .map(member -> {
+                model.addAttribute("member", member);
+                model.addAttribute("memberLoans", loanService.getActiveLoansForMember(member.getId()));
+                model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                return "borrow/ReturnBook";
+            })
+            .orElse("redirect:/login");
+    }
+
+    @PostMapping("/borrow/submit")
+    public String submitBorrow(@RequestParam String bookId,
+                              Authentication authentication,
+                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        String email = authentication.getName();
+        
+        return userService.findByEmail(email)
+            .flatMap(member -> {
+                java.time.LocalDate dueDate = java.time.LocalDate.now().plusWeeks(2);
+                return loanService.borrowBook(bookId, member.getId(), dueDate)
+                    .map(loan -> {
+                        redirectAttributes.addFlashAttribute("successMessage", 
+                            "Successfully borrowed '" + loan.getBookTitle() + "'. Due date: " + loan.getDueDate());
+                        return "redirect:/member/borrow";
+                    });
+            })
+            .orElseGet(() -> {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Cannot borrow book. Please try again.");
+                return "redirect:/member/borrow";
+            });
+    }
+
+    @PostMapping("/return/submit")
+    public String submitReturn(@RequestParam String loanId,
+                              Authentication authentication,
+                              org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        return loanService.returnLoan(loanId)
+            .map(loan -> {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Successfully returned '" + loan.getBookTitle() + "'.");
+                return "redirect:/member/return";
+            })
+            .orElseGet(() -> {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Cannot return book. Please try again.");
+                return "redirect:/member/return";
+            });
+    }
 }
