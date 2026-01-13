@@ -122,4 +122,31 @@ public class MemberController {
                 return "redirect:/member/library";
             });
     }
+
+    @GetMapping("/borrow")
+    public String memberBorrow(Authentication authentication, Model model) {
+        String email = authentication.getName();
+        
+        return userService.findByEmail(email)
+            .map(member -> {
+                model.addAttribute("member", member);
+                model.addAttribute("availableBooks", bookService.getAvailableBooks());
+                model.addAttribute("members", userService.getMembers());
+                return "borrow/BorrowBook";
+            })
+            .orElse("redirect:/login");
+    }
+
+    @GetMapping("/return")
+    public String memberReturn(Authentication authentication, Model model) {
+        String email = authentication.getName();
+        
+        return userService.findByEmail(email)
+            .map(member -> {
+                model.addAttribute("member", member);
+                model.addAttribute("activeLoans", loanService.getAllActiveLoans());
+                return "borrow/ReturnBook";
+            })
+            .orElse("redirect:/login");
+    }
 }

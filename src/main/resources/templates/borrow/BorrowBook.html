@@ -410,18 +410,41 @@
       }
     </style>
   </head>
-  <body class="bg-gradient-to-br from-purple-600 to-purple-700 min-h-screen p-5">
-    <aside class="fixed top-0 left-0 h-screen w-64 z-50">
-      <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-    </aside>
+  <body class="bg-gradient-to-br from-purple-600 to-purple-700 min-h-screen">
+    <!-- TOP NAVIGATION -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center space-x-4">
+            <a href="javascript:history.back()" class="text-gray-400 hover:text-purple-600 transition-colors">
+              <i class="fa-solid fa-arrow-left text-xl"></i>
+            </a>
+            <i class="fa-solid fa-book-open text-3xl text-purple-600"></i>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">Borrow Book</h1>
+              <p class="text-sm text-gray-500">Manage book borrowing requests</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a th:href="@{/member/home}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-semibold flex items-center gap-2">
+              <i class="fa-solid fa-home"></i> Dashboard
+            </a>
+            <a th:href="@{/member/return}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-semibold flex items-center gap-2">
+              <i class="fa-solid fa-book-bookmark"></i> Return Book
+            </a>
+            <form th:action="@{/logout}" method="post" class="inline">
+              <button type="submit" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-sign-out-alt"></i>
+                <span>Logout</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-    <div class="flex flex-col min-h-screen pl-64">
-      <nav class="fixed top-0 right-0 left-64 h-16 bg-white/80 backdrop-blur-md z-40 border-b border-gray-100">
-        <div th:replace="~{fragments/navigation :: navigation}"></div>
-      </nav>
-
-      <main class="p-10 mt-16 mx-auto w-full max-w-6xl">
-        <div class="bg-white rounded-xl shadow-lg p-8">
+    <!-- MAIN CONTENT -->
+    <div class="max-w-7xl mx-auto px-6 py-8">
           <!-- HEADER -->
           <div class="text-center border-b-4 border-purple-600 pb-6 mb-8">
             <h1 class="text-4xl font-bold text-gray-900 mb-2">📚 Borrow Book</h1>
@@ -583,11 +606,20 @@
 
           <!-- NAV LINKS -->
           <div class="mt-8 text-center pt-6 border-t border-gray-300">
-            <a href="ReturnBook.html" class="text-purple-600 font-semibold hover:underline mx-4">📤 Return/Overdue Books</a>
-            <a th:href="@{/}" class="text-purple-600 font-semibold hover:underline mx-4">🏠 Back to Home</a>
+            <a th:href="@{/member/return}" class="text-purple-600 font-semibold hover:underline mx-4">
+              <i class="fa-solid fa-book-bookmark"></i> Return/Overdue Books
+            </a>
+            <a th:href="@{/member/home}" class="text-purple-600 font-semibold hover:underline mx-4">
+              <i class="fa-solid fa-home"></i> Back to Dashboard
+            </a>
           </div>
         </div>
-      </main>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="max-w-7xl mx-auto px-6 py-8 text-center text-gray-500">
+      <p>&copy; 2026 Library Management System. All rights reserved.</p>
     </div>
 
     <script>
