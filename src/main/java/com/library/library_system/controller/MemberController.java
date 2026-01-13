@@ -134,7 +134,9 @@ public class MemberController {
     }
 
     @GetMapping("/borrow")
-    public String memberBorrow(Authentication authentication, Model model) {
+    public String memberBorrow(Authentication authentication, 
+                              @RequestParam(required = false) String bookId,
+                              Model model) {
         String email = authentication.getName();
         
         return userService.findByEmail(email)
@@ -143,6 +145,14 @@ public class MemberController {
                 model.addAttribute("availableBooks", bookService.getAvailableBooks());
                 model.addAttribute("activeLoans", loanService.getActiveLoansForMember(member.getId()));
                 model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                
+                // If bookId is provided, pre-select the book
+                if (bookId != null && !bookId.isEmpty()) {
+                    bookService.getBookById(bookId).ifPresent(book -> {
+                        model.addAttribute("selectedBook", book);
+                    });
+                }
+                
                 return "borrow/BorrowBook";
             })
             .orElse("redirect:/login");
