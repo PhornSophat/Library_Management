@@ -138,10 +138,16 @@
                                     <i class="fa-solid fa-check-circle mr-1"></i>
                                     Available
                                 </span>
-                                <span class="text-xs text-gray-400">
-                                    <i class="fa-solid fa-chart-line mr-1"></i>
-                                    Borrowed <span th:text="${book.borrowCount ?: 0}">0</span>x
-                                </span>
+                                <div class="flex items-center gap-4 text-xs text-gray-500">
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-solid fa-boxes-stacked"></i>
+                                        <span th:text="${'Qty: ' + book.quantity}">Qty: 1</span>
+                                    </span>
+                                    <span class="flex items-center gap-1">
+                                        <i class="fa-solid fa-chart-line"></i>
+                                        <span th:text="${'Borrowed ' + (book.borrowCount ?: 0) + 'x'}">Borrowed 0x</span>
+                                    </span>
+                                </div>
                             </div>
                         </a>
                     </div>

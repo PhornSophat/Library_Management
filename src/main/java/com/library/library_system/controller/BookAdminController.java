@@ -75,6 +75,7 @@ public class BookAdminController {
     public String addBook(@RequestParam String title,
                           @RequestParam String author,
                           @RequestParam String category,
+                          @RequestParam(defaultValue = "1") Integer quantity,
                           RedirectAttributes redirectAttributes) {
         try {
             Book newBook = new Book();
@@ -83,6 +84,7 @@ public class BookAdminController {
             newBook.setCategory(category);
             newBook.setStatus("AVAILABLE");
             newBook.setBorrowCount(0);
+            newBook.setQuantity(quantity);
             
             bookService.createBook(newBook);
             redirectAttributes.addFlashAttribute("successMessage", "Book added successfully!");
@@ -119,6 +121,7 @@ public class BookAdminController {
                              @RequestParam String author,
                              @RequestParam String category,
                              @RequestParam String status,
+                             @RequestParam(required = false) Integer quantity,
                              RedirectAttributes redirectAttributes) {
         try {
             return bookService.getBookById(id)
@@ -127,6 +130,9 @@ public class BookAdminController {
                     book.setAuthor(author);
                     book.setCategory(category);
                     book.setStatus(status);
+                    if (quantity != null) {
+                        book.setQuantity(quantity);
+                    }
                     bookService.updateBook(book);
                     redirectAttributes.addFlashAttribute("successMessage", "Book updated successfully");
                     return "redirect:/admin/books/" + id;

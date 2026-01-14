@@ -12,6 +12,7 @@ public class Book {
     private String category;
     private String status; // BORROWED, AVAILABLE, RETURNED
     private Integer borrowCount; // Track how many times borrowed
+    private Integer quantity; // Track total quantity of this book
 
     // Getters and Setters
     public String getId() { return id; }
@@ -31,4 +32,9 @@ public class Book {
 
     public Integer getBorrowCount() { return borrowCount; }
     public void setBorrowCount(Integer borrowCount) { this.borrowCount = borrowCount; }
+
+    public Integer getQuantity() { 
+        return quantity == null ? 1 : quantity; 
+    }
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
 }
