@@ -34,8 +34,8 @@ public class DashboardController {
     @GetMapping("/")
     public String dashboardHome(Model model) {
         // 1. nav & Context Info
-        model.addAttribute("userName", "Nisal Gunasekara");
-        model.addAttribute("userRole", "Admin");
+        model.addAttribute("userName", "Admin");
+        model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "dashboard");
 
         // 2. Summary Stats (Using BookService)
@@ -81,7 +81,8 @@ public class DashboardController {
     public String memberDisplay(@RequestParam(required = false) String search,
                                 @RequestParam(required = false) String status,
                                 Model model) {
-        model.addAttribute("userName", "Nisal Gunasekara");
+        model.addAttribute("userName", "Admin");
+        model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "members");
         
         List<User> membersList;
@@ -120,7 +121,8 @@ public class DashboardController {
     public String memberDetail(@PathVariable("id") String id, Model model, RedirectAttributes redirectAttributes) {
         return userService.getUserById(id)
             .map(user -> {
-                model.addAttribute("userName", "Nisal Gunasekara");
+                model.addAttribute("userName", "Admin");
+                model.addAttribute("userRole", "ADMIN");
                 model.addAttribute("activePage", "members");
                 model.addAttribute("member", user);
                 model.addAttribute("loans", loanService.getLoansForMember(id));
@@ -134,7 +136,8 @@ public class DashboardController {
 
     @GetMapping("/members/add")
     public String showAddMemberForm(Model model) {
-        model.addAttribute("userName", "Nisal Gunasekara");
+        model.addAttribute("userName", "Admin");
+        model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "members");
         model.addAttribute("user", new User());
         return "dashboard/add_member";
@@ -208,7 +211,8 @@ public class DashboardController {
     public String booksDisplay(@RequestParam(required = false) String search,
                               @RequestParam(required = false) String status,
                               Model model) {
-        model.addAttribute("userName", "Nisal Gunasekara");
+        model.addAttribute("userName", "Admin");
+        model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "books");
         
         List<Book> booksList;
@@ -240,7 +244,8 @@ public class DashboardController {
 
     @GetMapping("/books/add")
     public String showAddBookForm(Model model) {
-        model.addAttribute("userName", "Nisal Gunasekara");
+        model.addAttribute("userName", "Admin");
+        model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "books");
         model.addAttribute("book", new Book());
         return "dashboard/add_book";
@@ -273,7 +278,8 @@ public class DashboardController {
     public String bookDetail(@PathVariable("id") String id, Model model, RedirectAttributes redirectAttributes) {
         return bookService.getBookById(id)
             .map(book -> {
-                model.addAttribute("userName", "Nisal Gunasekara");
+                model.addAttribute("userName", "Admin");
+                model.addAttribute("userRole", "ADMIN");
                 model.addAttribute("activePage", "books");
                 model.addAttribute("book", book);
                 model.addAttribute("members", userService.getMembers());
@@ -374,7 +380,7 @@ public class DashboardController {
                                     @RequestParam String newPassword,
                                     RedirectAttributes redirectAttributes) {
         
-        boolean success = userService.updateAdminPassword("Nisal Gunasekara", currentPassword, newPassword);
+        boolean success = userService.updateAdminPassword("Admin", currentPassword, newPassword);
 
         if (success) {
             // Change from /dashboard to /
