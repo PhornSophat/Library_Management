@@ -20,6 +20,10 @@ public class BookService {
         return bookRepository.count();
     }
 
+    public long getTotalAvailableBooks() {
+        return bookRepository.countByStatus("AVAILABLE");
+    }
+
     public List<Book> getTopBorrowedBooks() {
         return bookRepository.findTop5ByOrderByBorrowCountDesc();
     }
@@ -76,5 +80,8 @@ public class BookService {
 
     public List<Book> getAvailableBooks() {
         return filterBooksByStatus("AVAILABLE");
+    }
+    public List<Book> getPendingReturnedBooks() {
+        return filterBooksByStatus("PENDING_RETURNED");
     }
 }

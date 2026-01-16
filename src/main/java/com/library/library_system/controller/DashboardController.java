@@ -38,11 +38,19 @@ public class DashboardController {
         model.addAttribute("userRole", "Admin");
         model.addAttribute("activePage", "dashboard");
 
-        // 2. Summary Stats (Using BookService)
+        // 2. Summary Stats (Using BookService and LoanService)
+        // Total Books: Count all books in library collection
         model.addAttribute("totalBooks", bookService.getTotalBooks());
-        model.addAttribute("borrowedBooks", bookService.getCountByStatus("BORROWED"));
-        model.addAttribute("returnedBooks", bookService.getCountByStatus("RETURNED"));
-        model.addAttribute("notBorrowed", bookService.getCountByStatus("AVAILABLE"));
+        
+        // Borrowed Books: Count active loans (BORROWED status in Loan records)
+        // This is more accurate as it reflects actual borrowing transactions
+        model.addAttribute("borrowedBooks", loanService.getTotalBorrowedBooksCount());
+        
+        // Returned Books: Count completed returns (RETURNED status in Loan records)
+        model.addAttribute("returnedBooks", loanService.getTotalReturnedBooksCount());
+        
+        // Available Books: Count books ready to borrow (AVAILABLE status)
+        model.addAttribute("notBorrowed", bookService.getTotalAvailableBooks());
         
         // 3. User Stats (Using UserService)
         model.addAttribute("totalUsers", userService.getTotalMemberCount());

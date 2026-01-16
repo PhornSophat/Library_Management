@@ -87,6 +87,22 @@ public class LoanService {
         return loanRepository.findByStatus("PENDING_RETURN");
     }
 
+    public List<Loan> getReturnedLoans() {
+        return loanRepository.findByStatus("RETURNED");
+    }
+
+    public long getTotalReturnedBooksCount() {
+        return loanRepository.countByStatus("RETURNED");
+    }
+
+    public long getTotalBorrowedBooksCount() {
+        return loanRepository.countByStatus("BORROWED");
+    }
+
+    public long getTotalActiveLoansCount() {
+        return getTotalBorrowedBooksCount();
+    }
+
     public List<Loan> getActiveLoansForMember(String memberId) {
         return loanRepository.findByMemberIdAndStatus(memberId, "BORROWED");
     }
