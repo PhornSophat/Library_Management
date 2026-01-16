@@ -6,6 +6,11 @@ import com.library.library_system.service.UserService;
 import com.library.library_system.service.BookService;
 import com.library.library_system.service.LoanService;
 import com.library.library_system.service.OverdueDetectionService;
+import com.library.library_system.dto.MemberCreateRequest;
+import com.library.library_system.dto.MemberUpdateRequest;
+import com.library.library_system.dto.BookRequest;
+import com.library.library_system.dto.BookUpdateRequest;
+import com.library.library_system.dto.BookRequest;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -17,8 +22,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 
 @Controller
 public class DashboardController {
@@ -158,21 +167,23 @@ public class DashboardController {
         model.addAttribute("userName", "Admin");
         model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "members");
-        model.addAttribute("user", new User());
+        model.addAttribute("user", new MemberCreateRequest());
         return "dashboard/add_member";
     }
 
     @PostMapping("/members/add")
-    public String addMember(@RequestParam String name,
-                           @RequestParam String email,
-                           @RequestParam String password,
-                           @RequestParam(required = false) String phone,
+    public String addMember(@Valid @ModelAttribute("user") MemberCreateRequest request,
+                           BindingResult bindingResult,
                            RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please fix the highlighted errors.");
+            return "redirect:/members/add";
+        }
         try {
             User newUser = new User();
-            newUser.setName(name);
-            newUser.setEmail(email);
-            newUser.setPassword(password);
+            newUser.setName(request.getName());
+            newUser.setEmail(request.getEmail());
+            newUser.setPassword(request.getPassword());
             newUser.setRole(User.Role.MEMBER);
             newUser.setStatus(User.Status.Active);
             
@@ -188,20 +199,21 @@ public class DashboardController {
 
     @PostMapping("/members/{id}/update")
     public String updateMember(@PathVariable("id") String id,
-                               @RequestParam String name,
-                               @RequestParam String email,
-                               @RequestParam(required = false) String password,
-                               @RequestParam User.Role role,
-                               @RequestParam User.Status status,
+                               @Valid @ModelAttribute MemberUpdateRequest request,
+                               BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please fix the highlighted errors.");
+            return "redirect:/members/" + id;
+        }
         return userService.getUserById(id)
             .map(user -> {
-                user.setName(name);
-                user.setEmail(email);
-                user.setRole(role);
-                user.setStatus(status);
-                if (password != null && !password.isBlank()) {
-                    user.setPassword(password);
+                user.setName(request.getName());
+                user.setEmail(request.getEmail());
+                user.setRole(request.getRole());
+                user.setStatus(request.getStatus());
+                if (request.getPassword() != null && !request.getPassword().isBlank()) {
+                    user.setPassword(request.getPassword());
                 }
                 userService.updateUser(user);
                 redirectAttributes.addFlashAttribute("successMessage", "Member updated successfully");
@@ -266,22 +278,27 @@ public class DashboardController {
         model.addAttribute("userName", "Admin");
         model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "books");
-        model.addAttribute("book", new Book());
+        model.addAttribute("book", new BookRequest());
         return "dashboard/add_book";
     }
 
     @PostMapping("/books/add")
-    public String addBook(@RequestParam String title,
-                         @RequestParam String author,
-                         @RequestParam String category,
+    public String addBook(@Valid @ModelAttribute("book") BookRequest bookRequest,
+                         BindingResult bindingResult,
                          RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please fix the highlighted errors.");
+            return "redirect:/books/add";
+        }
         try {
             Book newBook = new Book();
-            newBook.setTitle(title);
-            newBook.setAuthor(author);
-            newBook.setCategory(category);
+            newBook.setTitle(bookRequest.getTitle());
+            newBook.setAuthor(bookRequest.getAuthor());
+            newBook.setCategory(bookRequest.getCategory());
             newBook.setStatus("AVAILABLE");
             newBook.setBorrowCount(0);
+            newBook.setQuantity(bookRequest.getQuantity());
+            newBook.setAvailableQuantity(bookRequest.getQuantity());
             
             bookService.createBook(newBook);
             
@@ -313,17 +330,25 @@ public class DashboardController {
 
     @PostMapping("/books/{id}/update")
     public String updateBook(@PathVariable("id") String id,
-                            @RequestParam String title,
-                            @RequestParam String author,
-                            @RequestParam String category,
-                            @RequestParam String status,
+                            @Valid @ModelAttribute("bookUpdate") BookUpdateRequest request,
+                            BindingResult bindingResult,
                             RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please fix the highlighted errors.");
+            return "redirect:/books/" + id;
+        }
         return bookService.getBookById(id)
             .map(book -> {
-                book.setTitle(title);
-                book.setAuthor(author);
-                book.setCategory(category);
-                book.setStatus(status);
+                book.setTitle(request.getTitle());
+                book.setAuthor(request.getAuthor());
+                book.setCategory(request.getCategory());
+                book.setStatus(request.getStatus());
+                if (request.getQuantity() != null) {
+                    book.setQuantity(request.getQuantity());
+                    if (book.getAvailableQuantity() > book.getQuantity()) {
+                        book.setAvailableQuantity(book.getQuantity());
+                    }
+                }
                 bookService.updateBook(book);
                 redirectAttributes.addFlashAttribute("successMessage", "Book updated successfully");
                 return "redirect:/books/" + id;
@@ -386,8 +411,21 @@ public class DashboardController {
     @PostMapping("/books/{id}/delete")
     public String deleteBook(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
-            bookService.deleteBook(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Book deleted successfully");
+            // Guard: do not delete if borrowed or has active loan
+            return bookService.getBookById(id)
+                .map(book -> {
+                    if ("BORROWED".equals(book.getStatus()) || loanService.getActiveLoanForBook(id).isPresent()) {
+                        redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete: Book is currently on loan.");
+                        return "redirect:/books/" + id;
+                    }
+                    bookService.deleteBook(id);
+                    redirectAttributes.addFlashAttribute("successMessage", "Book deleted successfully");
+                    return "redirect:/books";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Book not found");
+                    return "redirect:/books";
+                });
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete book: " + e.getMessage());
         }
@@ -397,15 +435,15 @@ public class DashboardController {
     @PostMapping("/admin/update-credentials")
     public String updateCredentials(@RequestParam String currentPassword,
                                     @RequestParam String newPassword,
+                                    Authentication authentication,
                                     RedirectAttributes redirectAttributes) {
-        
-        boolean success = userService.updateAdminPassword("Admin", currentPassword, newPassword);
+
+        String email = authentication.getName();
+        boolean success = userService.updatePasswordForPrincipal(email, currentPassword, newPassword);
 
         if (success) {
-            // Change from /dashboard to /
             return "redirect:/?status=success"; 
         } else {
-            // Change from /dashboard to /
             return "redirect:/?status=error";
         }
     }

@@ -30,6 +30,9 @@ public class Book {
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity; // Track total quantity of this book
 
+    @Min(value = 0, message = "Available quantity cannot be negative")
+    private Integer availableQuantity; // Track copies that can still be borrowed
+
     // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -53,4 +56,10 @@ public class Book {
         return quantity == null ? 1 : quantity; 
     }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
+
+    public Integer getAvailableQuantity() {
+        // Default available to total quantity when null
+        return availableQuantity == null ? getQuantity() : availableQuantity;
+    }
+    public void setAvailableQuantity(Integer availableQuantity) { this.availableQuantity = availableQuantity; }
 }

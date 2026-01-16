@@ -2,8 +2,8 @@ package com.library.library_system.service;
 
 import com.library.library_system.model.Loan;
 import com.library.library_system.repository.LoanRepository;
-import com.library.library_system.repository.BookRepository;
 import com.library.library_system.repository.UserRepository;
+import com.library.library_system.service.BookService;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
 public class LoanService {
 
     private final LoanRepository loanRepository;
-    private final BookRepository bookRepository;
+    private final BookService bookService;
     private final UserRepository userRepository;
 
-    public LoanService(LoanRepository loanRepository, BookRepository bookRepository, UserRepository userRepository) {
+    public LoanService(LoanRepository loanRepository, BookService bookService, UserRepository userRepository) {
         this.loanRepository = loanRepository;
-        this.bookRepository = bookRepository;
+        this.bookService = bookService;
         this.userRepository = userRepository;
     }
 
@@ -30,12 +30,15 @@ public class LoanService {
             return Optional.empty();
         }
         
-        return bookRepository.findById(bookId).flatMap(book -> {
-            if (!"AVAILABLE".equals(book.getStatus())) {
+        return bookService.getBookById(bookId).flatMap(book -> {
+            if (book.getAvailableQuantity() <= 0) {
                 return Optional.empty();
             }
-            
-            return userRepository.findById(memberId).map(member -> {
+
+            return userRepository.findById(memberId).flatMap(member -> {
+                // Consume one copy and persist book state
+                bookService.consumeOneCopy(book.getId()).orElseThrow();
+
                 Loan loan = new Loan();
                 loan.setBookId(book.getId());
                 loan.setBookTitle(book.getTitle());
@@ -46,12 +49,7 @@ public class LoanService {
                 loan.setDueDate(dueDate != null ? dueDate : LocalDate.now().plusWeeks(2));
                 loan.setStatus("BORROWED");
 
-                book.setStatus("BORROWED");
-                int current = book.getBorrowCount() == null ? 0 : book.getBorrowCount();
-                book.setBorrowCount(current + 1);
-
-                bookRepository.save(book);
-                return loanRepository.save(loan);
+                return Optional.of(loanRepository.save(loan));
             });
         });
     }
@@ -66,16 +64,27 @@ public class LoanService {
         });
     }
 
+    /**
+     * Member-initiated return: validate ownership before marking pending.
+     */
+    public Optional<Loan> returnLoanForMember(String loanId, String memberId) {
+        return loanRepository.findById(loanId)
+            .filter(loan -> loan.getMemberId().equals(memberId))
+            .map(loan -> {
+                loan.setStatus("PENDING_RETURN");
+                loan.setReturnDate(LocalDate.now());
+                loanRepository.save(loan);
+                return loan;
+            });
+    }
+
     public Optional<Loan> confirmReturn(String loanId) {
         return loanRepository.findById(loanId).map(loan -> {
             if ("PENDING_RETURN".equals(loan.getStatus())) {
                 loan.setStatus("RETURNED");
                 loanRepository.save(loan);
 
-                bookRepository.findById(loan.getBookId()).ifPresent(book -> {
-                    book.setStatus("AVAILABLE");
-                    bookRepository.save(book);
-                });
+                bookService.releaseOneCopy(loan.getBookId());
             }
             return loan;
         });
@@ -110,7 +119,12 @@ public class LoanService {
     }
 
     public boolean canBorrow(String memberId) {
-        return getActiveBorrowCount(memberId) < 5;
+        // Do not allow borrow if member is Overdue or Suspended
+        return userRepository.findById(memberId)
+            .filter(user -> user.getStatus() != com.library.library_system.model.User.Status.Overdue
+                         && user.getStatus() != com.library.library_system.model.User.Status.Suspended)
+            .map(user -> getActiveBorrowCount(memberId) < 5)
+            .orElse(false);
     }
 
     public List<Loan> getLoansForMember(String memberId) {

@@ -21,6 +21,11 @@ public interface UserRepository extends MongoRepository<User, String> {
     
     // Filter by Status (Active, Inactive, Overdue, Suspended)
     List<User> findByStatus(User.Status status);
+
+    List<User> findByRoleAndStatus(User.Role role, User.Status status);
+
+    List<User> findByRoleAndNameContainingIgnoreCase(User.Role role, String name);
+    List<User> findByRoleAndEmailContainingIgnoreCase(User.Role role, String email);
     
     // Counts for dashboard summary cards (e.g., Total Admins)
     long countByRole(User.Role role);

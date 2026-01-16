@@ -2,25 +2,23 @@ package com.library.library_system.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.library.library_system.model.User;
 import com.library.library_system.service.UserService;
-import java.util.Optional;
+import com.library.library_system.dto.SignupRequest;
 
 @Controller
 public class AuthController {
 
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
-
-    public AuthController(UserService userService, PasswordEncoder passwordEncoder) {
+    public AuthController(UserService userService) {
         this.userService = userService;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/login")
@@ -30,7 +28,7 @@ public class AuthController {
 
     @GetMapping("/signup")
     public String signupPage(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("signup", new SignupRequest());
         return "signup";
     }
 
@@ -39,35 +37,33 @@ public class AuthController {
     // AuthenticationSuccessHandler bean.
 
     @PostMapping("/signup")
-    public String handleSignup(@RequestParam String name,
-                               @RequestParam String email,
-                               @RequestParam String password,
-                               @RequestParam String confirmPassword,
+    public String handleSignup(@Valid @ModelAttribute("signup") SignupRequest signup,
+                               BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
-        
+
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Please fix the highlighted errors.");
+            return "redirect:/signup";
+        }
+
         // Validate email doesn't exist
-        if (userService.findByEmail(email).isPresent()) {
+        if (userService.findByEmail(signup.getEmail()).isPresent()) {
             redirectAttributes.addFlashAttribute("error", "Email already exists. Please login instead.");
             return "redirect:/signup";
         }
 
         // Validate passwords match
-        if (!password.equals(confirmPassword)) {
+        if (!signup.passwordsMatch()) {
             redirectAttributes.addFlashAttribute("error", "Passwords do not match.");
-            return "redirect:/signup";
-        }
-
-        // Validate password length
-        if (password.length() < 6) {
-            redirectAttributes.addFlashAttribute("error", "Password must be at least 6 characters.");
             return "redirect:/signup";
         }
 
         // Create new user
         User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setName(signup.getName());
+        user.setEmail(signup.getEmail());
+        // Leave raw password; UserService will encode exactly once to avoid double-hashing
+        user.setPassword(signup.getPassword());
         user.setRole(User.Role.MEMBER);
         user.setStatus(User.Status.Active);
         
