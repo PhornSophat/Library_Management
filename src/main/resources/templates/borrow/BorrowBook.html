@@ -538,6 +538,7 @@
 
                 <form th:action="@{/member/borrow/submit}" method="post" id="borrowForm">
                   <input type="hidden" name="bookId" id="selectedBookId" th:value="${selectedBook != null ? selectedBook.id : ''}" required>
+                  <input type="hidden" name="dueDate" id="dueDate" required>
 
                   <div th:if="${selectedBook == null}" class="bg-white border-2 border-gray-300 rounded-lg p-4 mt-4 hidden" id="selectedBookBox">
                     <div class="text-base font-bold text-gray-900 mb-3 pb-2 border-b-2 border-purple-600">Selected Book</div>
@@ -560,10 +561,56 @@
 
           <!-- ACTION BUTTONS & SUMMARY -->
           <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-8">
-            <div class="text-lg font-bold text-gray-900 mb-4 pb-3 border-b-2 border-purple-600">Step 3: Confirm Borrowing</div>
+            <div class="text-lg font-bold text-gray-900 mb-4 pb-3 border-b-2 border-purple-600">Step 3: Select Due Date & Confirm Borrowing</div>
 
+            <!-- DUE DATE PRESET SELECTION -->
+            <div class="mb-6 bg-white border-2 border-gray-300 rounded-lg p-4">
+              <div class="text-base font-bold text-gray-900 mb-4">Due Date Options</div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <!-- Standard 2 weeks -->
+                <button type="button" class="px-4 py-3 border-2 border-purple-300 rounded-lg text-left hover:bg-purple-50 transition-all"
+                        onclick="setDueDate('standard')">
+                  <div class="font-semibold text-gray-800"><i class="fa-solid fa-calendar"></i> Standard (2 weeks)</div>
+                  <div class="text-sm text-gray-600" id="standardDate"></div>
+                  <span class="text-xs text-gray-500">Default lending period</span>
+                </button>
+
+                <!-- 1 week -->
+                <button type="button" class="px-4 py-3 border-2 border-gray-300 rounded-lg text-left hover:bg-gray-50 transition-all"
+                        onclick="setDueDate('oneweek')">
+                  <div class="font-semibold text-gray-800"><i class="fa-solid fa-calendar-minus"></i> Short (1 week)</div>
+                  <div class="text-sm text-gray-600" id="oneWeekDate"></div>
+                  <span class="text-xs text-gray-500">Quick return</span>
+                </button>
+
+                <!-- Overdue Test (Yesterday) - FOR TESTING -->
+                <button type="button" class="px-4 py-3 border-2 border-red-400 bg-red-50 rounded-lg text-left hover:bg-red-100 transition-all"
+                        onclick="setDueDate('overdue')">
+                  <div class="font-semibold text-red-800"><i class="fa-solid fa-flask-vial"></i> TEST: Overdue (Yesterday)</div>
+                  <div class="text-sm text-red-600" id="overdueDate"></div>
+                  <span class="text-xs text-red-600 font-semibold">🔬 For overdue detection testing</span>
+                </button>
+
+                <!-- 1 month -->
+                <button type="button" class="px-4 py-3 border-2 border-gray-300 rounded-lg text-left hover:bg-gray-50 transition-all"
+                        onclick="setDueDate('onemonth')">
+                  <div class="font-semibold text-gray-800"><i class="fa-solid fa-calendar-plus"></i> Extended (1 month)</div>
+                  <div class="text-sm text-gray-600" id="oneMonthDate"></div>
+                  <span class="text-xs text-gray-500">Longer reading time</span>
+                </button>
+              </div>
+
+              <!-- Selected Due Date Display -->
+              <div class="bg-purple-50 border-l-4 border-purple-600 p-4 rounded">
+                <div class="text-sm font-semibold text-gray-700 mb-1">Selected Due Date</div>
+                <div class="text-lg font-bold text-purple-700" id="selectedDueDate">Select an option above</div>
+              </div>
+            </div>
+
+                    <div class="flex justify-between py-2 border-b border-gray-200">
                       <span class="font-semibold text-gray-800">Due Date:</span>
-                      <span class="text-gray-700" th:text="${#temporals.format(#temporals.createNow().plusWeeks(2), 'MMM dd, yyyy')}">-</span>
+                      <span class="text-gray-700" id="displayDueDate" th:text="${#temporals.format(#temporals.createNow().plusWeeks(2), 'MMM dd, yyyy')}">-</span>
                     </div>
                   </div>
 
@@ -635,6 +682,80 @@
     </div>
 
     <script th:inline="javascript">
+      // Initialize due date presets on page load
+      function initializeDatePresets() {
+        const today = new Date();
+        
+        // Standard: 2 weeks from today
+        const standard = new Date(today);
+        standard.setDate(standard.getDate() + 14);
+        document.getElementById('standardDate').textContent = formatDate(standard);
+        
+        // One week from today
+        const oneWeek = new Date(today);
+        oneWeek.setDate(oneWeek.getDate() + 7);
+        document.getElementById('oneWeekDate').textContent = formatDate(oneWeek);
+        
+        // Overdue Test: Yesterday (for testing)
+        const overdue = new Date(today);
+        overdue.setDate(overdue.getDate() - 1);
+        document.getElementById('overdueDate').textContent = formatDate(overdue) + ' (OVERDUE)';
+        
+        // One month from today
+        const oneMonth = new Date(today);
+        oneMonth.setMonth(oneMonth.getMonth() + 1);
+        document.getElementById('oneMonthDate').textContent = formatDate(oneMonth);
+        
+        // Set default to standard
+        setDueDate('standard');
+      }
+
+      function formatDate(date) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+      }
+
+      function formatDateISO(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      function setDueDate(preset) {
+        const today = new Date();
+        let dueDate;
+        
+        switch(preset) {
+          case 'standard':
+            dueDate = new Date(today);
+            dueDate.setDate(dueDate.getDate() + 14);
+            document.getElementById('selectedDueDate').textContent = formatDate(dueDate) + ' (Standard - 2 weeks)';
+            break;
+          case 'oneweek':
+            dueDate = new Date(today);
+            dueDate.setDate(dueDate.getDate() + 7);
+            document.getElementById('selectedDueDate').textContent = formatDate(dueDate) + ' (Short - 1 week)';
+            break;
+          case 'overdue':
+            dueDate = new Date(today);
+            dueDate.setDate(dueDate.getDate() - 1);
+            document.getElementById('selectedDueDate').innerHTML = '<span class="text-red-600 font-bold">⚠️ ' + formatDate(dueDate) + ' (OVERDUE TEST)</span>';
+            break;
+          case 'onemonth':
+            dueDate = new Date(today);
+            dueDate.setMonth(dueDate.getMonth() + 1);
+            document.getElementById('selectedDueDate').textContent = formatDate(dueDate) + ' (Extended - 1 month)';
+            break;
+        }
+        
+        // Set hidden input with ISO format date
+        document.getElementById('dueDate').value = formatDateISO(dueDate);
+        
+        // Update display
+        document.getElementById('displayDueDate').textContent = formatDate(dueDate);
+      }
+
       // Show SweetAlert2 for error messages
       const errorMessage = /*[[${errorMessage}]]*/ null;
       const successMessage = /*[[${successMessage}]]*/ null;
@@ -704,6 +825,11 @@
           }
         });
       }
+
+      // Initialize date presets when page loads
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeDatePresets();
+      });
     </script>
   </body>
 </html>

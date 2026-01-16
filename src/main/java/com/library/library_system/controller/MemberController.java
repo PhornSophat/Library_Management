@@ -167,6 +167,7 @@ public class MemberController {
                 model.addAttribute("member", member);
                 model.addAttribute("memberLoans", loanService.getActiveLoansForMember(member.getId()));
                 model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                model.addAttribute("pendingReturnsCount", loanService.getPendingReturns().size());
                 return "borrow/ReturnBook";
             })
             .orElse("redirect:/login");
@@ -174,14 +175,16 @@ public class MemberController {
 
     @PostMapping("/borrow/submit")
     public String submitBorrow(@RequestParam String bookId,
+                              @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dueDate,
                               Authentication authentication,
                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         String email = authentication.getName();
         
         return userService.findByEmail(email)
             .flatMap(member -> {
-                java.time.LocalDate dueDate = java.time.LocalDate.now().plusWeeks(2);
-                return loanService.borrowBook(bookId, member.getId(), dueDate)
+                // Use provided due date or default to 2 weeks
+                java.time.LocalDate borrowDueDate = dueDate != null ? dueDate : java.time.LocalDate.now().plusWeeks(2);
+                return loanService.borrowBook(bookId, member.getId(), borrowDueDate)
                     .map(loan -> {
                         redirectAttributes.addFlashAttribute("successMessage", 
                             "Successfully borrowed '" + loan.getBookTitle() + "'. Due date: " + loan.getDueDate());
@@ -202,12 +205,12 @@ public class MemberController {
         return loanService.returnLoan(loanId)
             .map(loan -> {
                 redirectAttributes.addFlashAttribute("successMessage", 
-                    "Successfully returned '" + loan.getBookTitle() + "'.");
+                    "Return request submitted for '" + loan.getBookTitle() + "'. Waiting for admin verification.");
                 return "redirect:/member/return";
             })
             .orElseGet(() -> {
                 redirectAttributes.addFlashAttribute("errorMessage", 
-                    "Cannot return book. Please try again.");
+                    "Cannot submit return request. Please try again.");
                 return "redirect:/member/return";
             });
     }

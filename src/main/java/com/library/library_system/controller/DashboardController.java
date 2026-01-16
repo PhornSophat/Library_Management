@@ -5,6 +5,7 @@ import com.library.library_system.model.Book;
 import com.library.library_system.service.UserService;
 import com.library.library_system.service.BookService;
 import com.library.library_system.service.LoanService;
+import com.library.library_system.service.OverdueDetectionService;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -31,6 +32,9 @@ public class DashboardController {
     @Autowired
     private LoanService loanService;
 
+    @Autowired
+    private OverdueDetectionService overdueDetectionService;
+
     @GetMapping("/")
     public String dashboardHome(Model model) {
         // 1. nav & Context Info
@@ -38,16 +42,30 @@ public class DashboardController {
         model.addAttribute("userRole", "ADMIN");
         model.addAttribute("activePage", "dashboard");
 
-        // 2. Summary Stats (Using BookService)
+        // 2. Summary Stats (Using BookService and LoanService)
+        // Total Books: Count all books in library collection
         model.addAttribute("totalBooks", bookService.getTotalBooks());
-        model.addAttribute("borrowedBooks", bookService.getCountByStatus("BORROWED"));
-        model.addAttribute("returnedBooks", bookService.getCountByStatus("RETURNED"));
-        model.addAttribute("notBorrowed", bookService.getCountByStatus("AVAILABLE"));
+        
+        // Borrowed Books: Count active loans (BORROWED status in Loan records)
+        // This is more accurate as it reflects actual borrowing transactions
+        model.addAttribute("borrowedBooks", loanService.getTotalBorrowedBooksCount());
+        
+        // Returned Books: Count completed returns (RETURNED status in Loan records)
+        model.addAttribute("returnedBooks", loanService.getTotalReturnedBooksCount());
+        
+        // Available Books: Count books ready to borrow (AVAILABLE status)
+        model.addAttribute("notBorrowed", bookService.getTotalAvailableBooks());
         
         // 3. User Stats (Using UserService)
         model.addAttribute("totalUsers", userService.getTotalMemberCount());
 
-        // 4. Admin Component Data
+        // 4. Pending Returns Notification
+        model.addAttribute("pendingReturnsCount", loanService.getPendingReturns().size());
+
+        // 4a. Overdue Loans Count
+        model.addAttribute("overdueLoansCount", loanService.getOverdueLoans().size());
+
+        // 5. Admin Component Data
         model.addAttribute("adminData", userService.getAdmins());
         model.addAttribute("adminTitle", "BookWorm Admins");
 
@@ -58,6 +76,7 @@ public class DashboardController {
         // 6. Overdue Section (Action Required)
         model.addAttribute("overdueList", userService.getOverdueMembers());
         model.addAttribute("overdueTitle", "Overdue Borrowers");
+        model.addAttribute("overdueLoans", loanService.getOverdueLoans());
 
         // 7. Recent Activities
         List<java.util.Map<String, String>> activities = new java.util.ArrayList<>();
@@ -389,6 +408,61 @@ public class DashboardController {
             // Change from /dashboard to /
             return "redirect:/?status=error";
         }
+    }
+
+    @GetMapping("/admin/pending-returns")
+    public String showPendingReturns(Model model) {
+        model.addAttribute("userName", "Nisal Gunasekara");
+        model.addAttribute("activePage", "pending-returns");
+        model.addAttribute("pendingReturns", loanService.getPendingReturns());
+        model.addAttribute("pendingCount", loanService.getPendingReturns().size());
+        return "dashboard/pending_returns";
+    }
+
+    @PostMapping("/admin/confirm-return/{loanId}")
+    public String confirmReturn(@PathVariable String loanId, RedirectAttributes redirectAttributes) {
+        return loanService.confirmReturn(loanId)
+            .map(loan -> {
+                redirectAttributes.addFlashAttribute("successMessage", 
+                    "Return verified for '" + loan.getBookTitle() + "'. Book is now available.");
+                return "redirect:/admin/pending-returns";
+            })
+            .orElseGet(() -> {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Cannot verify return. Loan not found.");
+                return "redirect:/admin/pending-returns";
+            });
+    }
+
+    /**
+     * Manual trigger for overdue detection (admin only)
+     * Used for testing and manual updates
+     */
+    @PostMapping("/admin/process-overdue")
+    public String processOverdue(RedirectAttributes redirectAttributes) {
+        try {
+            overdueDetectionService.triggerOverdueDetection();
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Overdue detection process completed. User statuses updated.");
+            return "redirect:/";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error processing overdue loans: " + e.getMessage());
+            return "redirect:/";
+        }
+    }
+
+    /**
+     * View overdue loans for dashboard
+     */
+    @GetMapping("/admin/overdue")
+    public String viewOverdueLoans(Model model) {
+        model.addAttribute("userName", "Admin");
+        model.addAttribute("userRole", "ADMIN");
+        model.addAttribute("activePage", "overdue");
+        model.addAttribute("overdueLoans", loanService.getOverdueLoans());
+        model.addAttribute("overdueCount", loanService.getOverdueLoans().size());
+        return "dashboard/overdue_loans";
     }
 
 }

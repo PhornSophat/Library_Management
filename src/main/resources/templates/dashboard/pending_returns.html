@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Returns - Library Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pending-count {
+            background: #ef4444;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .content-box {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-overdue {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-verify {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-verify:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-back {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #4b5563;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: #6b7280;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .nav-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .alert {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert.fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                Pending Book Returns
+            </h1>
+            <span class="pending-count" th:text="${pendingCount + ' Pending'}">0 Pending</span>
+        </div>
+
+        <!-- Content -->
+        <div class="content-box">
+            <!-- Success/Error Messages -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <strong><i class="fa-solid fa-check-circle"></i> Success!</strong>
+                <span th:text="${successMessage}"></span>
+            </div>
+
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <strong><i class="fa-solid fa-exclamation-circle"></i> Error!</strong>
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Info Alert -->
+            <div class="alert alert-info">
+                <strong><i class="fa-solid fa-info-circle"></i> Admin Verification Required</strong>
+                <p style="margin-top: 8px; margin-bottom: 0;">
+                    Members have requested to return these books. Please verify that you have physically received the books before confirming the returns.
+                </p>
+            </div>
+
+            <!-- Pending Returns Table -->
+            <div th:if="${pendingReturns != null and !pendingReturns.isEmpty()}">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Loan ID</th>
+                            <th>Book Title</th>
+                            <th>Author</th>
+                            <th>Member Name</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Return Request Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="loan : ${pendingReturns}">
+                            <td><code th:text="${loan.id}">L001</code></td>
+                            <td><strong th:text="${loan.bookTitle}">Book Title</strong></td>
+                            <td th:text="${loan.bookAuthor != null ? loan.bookAuthor : 'N/A'}">Author</td>
+                            <td th:text="${loan.memberName}">Member Name</td>
+                            <td th:text="${#temporals.format(loan.borrowDate, 'MMM dd, yyyy')}">Date</td>
+                            <td th:text="${#temporals.format(loan.dueDate, 'MMM dd, yyyy')}">Date</td>
+                            <td th:text="${#temporals.format(loan.returnDate, 'MMM dd, yyyy HH:mm')}">Date</td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'badge-overdue' : 'badge-pending'"
+                                      th:text="${loan.dueDate.isBefore(T(java.time.LocalDate).now())} ? 'Overdue Return' : 'On Time'">
+                                    Pending
+                                </span>
+                            </td>
+                            <td>
+                                <form th:action="@{/admin/confirm-return/{id}(id=${loan.id})}" method="post" 
+                                      style="display: inline;"
+                                      onsubmit="return confirm('Confirm that you have received this book?\n\nBook: ' + this.getAttribute('data-book') + '\nMember: ' + this.getAttribute('data-member'));"
+                                      th:attr="data-book=${loan.bookTitle}, data-member=${loan.memberName}">
+                                    <button type="submit" class="btn btn-verify">
+                                        <i class="fa-solid fa-check"></i>
+                                        Verify Return
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${pendingReturns == null or pendingReturns.isEmpty()}" class="empty-state">
+                <i class="fa-solid fa-inbox"></i>
+                <h3>No Pending Returns</h3>
+                <p>All return requests have been processed. Great job!</p>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="nav-links">
+                <a href="/" class="btn btn-back">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+                <!-- <a href="/borrow/ReturnBook" class="btn btn-back">
+                    <i class="fa-solid fa-list"></i>
+                    View All Returns
+                </a> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="max-width: 1400px; margin: 0 auto; padding: 32px 24px; text-align: center; color: white;">
+        <p>&copy; 2026 Library Management System. All rights reserved.</p>
+    </div>
+
+    <script>
+        // Auto-dismiss success message after 3 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.querySelector('.alert-success');
+            if (successAlert) {
+                // Add a small delay then start fade-out animation
+                setTimeout(function() {
+                    successAlert.classList.add('fade-out');
+                    // Remove the element from DOM after animation completes
+                    setTimeout(function() {
+                        successAlert.style.display = 'none';
+                    }, 500);
+                }, 3000); // Display for 3 seconds
+            }
+        });
+    </script>
+</body>
+</html>

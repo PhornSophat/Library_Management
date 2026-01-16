@@ -16,7 +16,7 @@ public class Loan {
     private LocalDate borrowDate;
     private LocalDate dueDate;
     private LocalDate returnDate;
-    private String status; // BORROWED or RETURNED
+    private String status; // BORROWED, PENDING_RETURN, or RETURNED
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
