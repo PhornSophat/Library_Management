@@ -31,9 +31,9 @@ public class OverdueDetectionService {
 
     /**
      * Scheduled task to process overdue loans
-     * Disabled for testing - use manual trigger via button
+     * Runs daily at midnight to check for overdue items
      */
-    // @Scheduled(cron = "* * * * * *") // Disabled
+    @Scheduled(cron = "0 0 0 * * *") // Run daily at midnight
     public void processOverdueLoans() {
         logger.info("🔄 Starting scheduled overdue detection process...");
         try {

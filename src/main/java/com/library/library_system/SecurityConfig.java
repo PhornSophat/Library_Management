@@ -17,10 +17,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationSuccessHandler successHandler) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+            // Enable CSRF protection for production security
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**") // Ignore CSRF for API endpoints if needed
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
-                .requestMatchers("/member/home", "/member/library").hasAuthority("MEMBER")
+                .requestMatchers("/member/**").hasAuthority("MEMBER")
                 .requestMatchers("/", "/members/**", "/books/**", "/admin/**", "/borrow", "/return", "/loans/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )

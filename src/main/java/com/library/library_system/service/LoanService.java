@@ -25,15 +25,13 @@ public class LoanService {
     }
 
     public Optional<Loan> borrowBook(String bookId, String memberId, LocalDate dueDate) {
+        // First check: Can the member borrow? (Consolidated check)
+        if (!canBorrow(memberId)) {
+            return Optional.empty();
+        }
+        
         return bookRepository.findById(bookId).flatMap(book -> {
             if (!"AVAILABLE".equals(book.getStatus())) {
-                return Optional.empty();
-            }
-            
-            // Check if member has already borrowed 5 books
-            List<Loan> activeBorrows = loanRepository.findByMemberIdAndStatus(memberId, "BORROWED");
-            if (activeBorrows.size() >= 5) {
-                // Member has reached the limit of 5 borrowed books
                 return Optional.empty();
             }
             

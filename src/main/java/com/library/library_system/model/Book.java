@@ -2,16 +2,32 @@ package com.library.library_system.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 
 @Document(collection = "Books")
 public class Book {
     @Id
     private String id;
+    
+    @NotBlank(message = "Title is required")
     private String title;
+    
+    @NotBlank(message = "Author is required")
     private String author;
+    
+    @NotBlank(message = "Category is required")
     private String category;
+    
+    @NotNull(message = "Status is required")
     private String status; // BORROWED, AVAILABLE, RETURNED
+    
+    @Min(value = 0, message = "Borrow count cannot be negative")
     private Integer borrowCount; // Track how many times borrowed
+    
+    @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity; // Track total quantity of this book
 
     // Getters and Setters

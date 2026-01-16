@@ -108,9 +108,8 @@ public class MemberController {
         
         return userService.findByEmail(email)
             .flatMap(member -> {
-                // Check if member has already borrowed 5 books
-                List<Loan> activeBorrows = loanService.getActiveLoansForMember(member.getId());
-                if (activeBorrows.size() >= 5) {
+                // Consolidated check: Can member borrow?
+                if (!loanService.canBorrow(member.getId())) {
                     redirectAttributes.addFlashAttribute("errorMessage", 
                         "You have already borrowed 5 books (the maximum limit). Please return a book before borrowing another.");
                     return java.util.Optional.empty();

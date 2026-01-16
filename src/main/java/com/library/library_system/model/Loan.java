@@ -2,20 +2,41 @@ package com.library.library_system.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Document(collection = "Loans")
 public class Loan {
     @Id
     private String id;
+    
+    @NotBlank(message = "Book ID is required")
+    @Indexed
     private String bookId;
+    
+    @NotBlank(message = "Book title is required")
     private String bookTitle;
+    
     private String bookAuthor; // Author of the borrowed book
+    
+    @NotBlank(message = "Member ID is required")
+    @Indexed
     private String memberId;
+    
+    @NotBlank(message = "Member name is required")
     private String memberName;
+    
+    @NotNull(message = "Borrow date is required")
     private LocalDate borrowDate;
+    
+    @NotNull(message = "Due date is required")
     private LocalDate dueDate;
+    
     private LocalDate returnDate;
+    
+    @NotNull(message = "Status is required")
     private String status; // BORROWED, PENDING_RETURN, or RETURNED
 
     public String getId() { return id; }
