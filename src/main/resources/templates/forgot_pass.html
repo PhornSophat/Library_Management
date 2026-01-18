@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library System | Forgot Password</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #2c1810, #4a3428, #1a1410);
+      padding: 30px;
+    }
+
+    .forgot-wrapper {
+      display: flex;
+      width: 950px;
+      max-width: 95%;
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 50px rgba(0,0,0,0.18);
+    }
+
+    /* LEFT PANEL */
+    .forgot-info {
+      flex: 1;
+      color: #fff;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .library-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .forgot-info h1 {
+      font-size: 32px;
+      margin-bottom: 15px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .forgot-info p {
+      font-size: 15px;
+      line-height: 1.6;
+      opacity: 0.95;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* RIGHT PANEL */
+    .forgot-form {
+      flex: 1;
+      padding: 50px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .forgot-form h2 {
+      font-size: 26px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 25px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      padding-right: 45px;
+      border-radius: 10px;
+      border: 1px solid #e6e6e6;
+      font-size: 14px;
+      background: #fff;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #8B6F47;
+      box-shadow: 0 8px 24px rgba(139, 111, 71, 0.15);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 33px;
+      cursor: pointer;
+      color: #6b7280;
+      transition: color 0.2s;
+      font-size: 18px;
+      user-select: none;
+    }
+
+    .password-toggle:hover {
+      color: #8B6F47;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(90deg, #8B6F47, #A0826D);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(139, 111, 71, 0.25);
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 36px rgba(139, 111, 71, 0.35);
+      background: linear-gradient(90deg, #6B5537, #8B6F47);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .back-link {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    .back-link a {
+      color: #8B6F47;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .back-link a:hover {
+      color: #6B5537;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .message.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #6b7280;
+      transition: all 0.3s ease;
+    }
+
+    .step.active {
+      background: #8B6F47;
+      color: #fff;
+    }
+
+    .step.completed {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .step-line {
+      width: 50px;
+      height: 2px;
+      background: #e5e7eb;
+      transition: all 0.3s ease;
+    }
+
+    .step-line.completed {
+      background: #10b981;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .forgot-wrapper {
+        flex-direction: column;
+      }
+
+      .forgot-info {
+        text-align: center;
+        padding: 40px 30px;
+      }
+
+      .library-image {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="forgot-wrapper">
+
+    <div class="forgot-info">
+      <h1>Reset Password</h1>
+      <p>
+        Don't worry! Enter your email address and we'll send you a verification code to reset your password.
+      </p>
+
+      <!-- Library Image from External Source -->
+      <img src="https://imgs.search.brave.com/jxSYTEC8nmSxSh_MxZ7RDxac3xfSyef0P6-KQjVt-zQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMudW5zcGxhc2gu/Y29tL3Bob3RvLTE0/ODE2Mjc4MzQ4NzYt/Yjc4MzNlOGY1NTcw/P2ZtPWpwZyZxPTYw/Jnc9MzAwMCZpeGxp/Yj1yYi00LjEuMCZp/eGlkPU0zd3hNakEz/ZkRCOE1IeHpaV0Z5/WTJoOE5IeDhiR2xp/Y21GeWVYeGxibnd3/Zkh3d2ZIeDhNQT09" 
+           alt="Library" 
+           class="library-image" 
+           style="object-fit: cover; border-radius: 12px;" />
+    </div>
+
+    <div class="forgot-form">
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step active" id="step1-indicator">1</div>
+        <div class="step-line" id="line1"></div>
+        <div class="step" id="step2-indicator">2</div>
+        <div class="step-line" id="line2"></div>
+        <div class="step" id="step3-indicator">3</div>
+      </div>
+
+      <!-- Step 1: Email Input -->
+      <div id="step1" class="step-content">
+        <h2>Forgot Password?</h2>
+        <p class="subtitle">Enter your email to receive a verification code</p>
+
+        <div id="message1" class="message hidden"></div>
+
+        <form id="emailForm" th:action="@{/forgot-password/send-code}" method="post">
+          <div class="input-group">
+            <label>Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter your registered email" required>
+          </div>
+
+          <button type="submit">Send Verification Code</button>
+        </form>
+      </div>
+
+      <!-- Step 2: Verification Code -->
+      <div id="step2" class="step-content hidden">
+        <h2>Verify Your Email</h2>
+        <p class="subtitle">Enter the 6-digit code sent to <span id="emailDisplay"></span></p>
+
+        <div id="message2" class="message hidden"></div>
+
+        <form id="codeForm" th:action="@{/forgot-password/verify-code}" method="post">
+          <input type="hidden" id="emailHidden" name="email">
+          <div class="input-group">
+            <label>Verification Code</label>
+            <input type="text" id="verificationCode" name="code" placeholder="Enter 6-digit code" required maxlength="6" pattern="[0-9]{6}">
+          </div>
+
+          <button type="submit">Verify Code</button>
+          <button type="button" onclick="resendCode()" style="background: #6b7280; margin-top: 10px;">Resend Code</button>
+        </form>
+      </div>
+
+      <!-- Step 3: Reset Password -->
+      <div id="step3" class="step-content hidden">
+        <h2>Reset Password</h2>
+        <p class="subtitle">Create a new password for your account</p>
+
+        <div id="message3" class="message hidden"></div>
+
+        <form id="resetForm" th:action="@{/forgot-password/reset}" method="post">
+          <input type="hidden" id="emailHidden2" name="email">
+          <input type="hidden" id="codeHidden" name="code">
+          
+          <div class="input-group">
+            <label>New Password</label>
+            <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password (min 6 chars)" required minlength="6">
+            <span class="password-toggle" onclick="togglePassword('newPassword', this)">👁️</span>
+          </div>
+
+          <div class="input-group">
+            <label>Confirm New Password</label>
+            <input type="password" id="confirmNewPassword" name="confirmPassword" placeholder="Confirm new password" required>
+            <span class="password-toggle" onclick="togglePassword('confirmNewPassword', this)">👁️</span>
+          </div>
+
+          <button type="submit">Reset Password</button>
+        </form>
+      </div>
+
+      <div class="back-link">
+        Remember your password?
+        <a th:href="@{/login}">Back to Login</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let userEmail = '';
+    let verificationCode = '';
+
+    // Toggle password visibility
+    function togglePassword(inputId, toggleIcon) {
+      const passwordInput = document.getElementById(inputId);
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.textContent = '👁️‍🗨️';
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.textContent = '👁️';
+      }
+    }
+
+    // Handle email form submission
+    document.getElementById('emailForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const messageDiv = document.getElementById('message1');
+      
+      try {
+        const response = await fetch('/forgot-password/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        if (response.ok) {
+          userEmail = email;
+          
+          messageDiv.textContent = 'Verification code sent to your email!';
+          messageDiv.className = 'message success';
+          messageDiv.classList.remove('hidden');
+          
+          setTimeout(() => {
+            goToStep(2);
+          }, 1500);
+        } else {
+          messageDiv.textContent = 'Email not found. Please check and try again.';
+          messageDiv.className = 'message error';
+          messageDiv.classList.remove('hidden');
+        }
+        
+      } catch (error) {
+        messageDiv.textContent = 'Error sending verification code. Please try again.';
+        messageDiv.className = 'message error';
+        messageDiv.classList.remove('hidden');
+      }
+    });
+
+    // Handle verification code form submission
+    document.getElementById('codeForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const code = document.getElementById('verificationCode').value;
+      const messageDiv = document.getElementById('message2');
+      
+      try {
+        const response = await fetch('/forgot-password/verify-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail, code })
+        });
+        
+        if (response.ok) {
+          verificationCode = code;
+          
+          messageDiv.textContent = 'Code verified successfully!';
+          messageDiv.className = 'message success';
+          messageDiv.classList.remove('hidden');
+          
+          setTimeout(() => {
+            goToStep(3);
+          }, 1500);
+        } else {
+          messageDiv.textContent = 'Invalid verification code. Please try again.';
+          messageDiv.className = 'message error';
+          messageDiv.classList.remove('hidden');
+        }
+        
+      } catch (error) {
+        messageDiv.textContent = 'Error verifying code. Please try again.';
+        messageDiv.className = 'message error';
+        messageDiv.classList.remove('hidden');
+      }
+    });
+
+    // Handle password reset form submission
+    document.getElementById('resetForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmNewPassword').value;
+      const messageDiv = document.getElementById('message3');
+      
+      // Validate passwords match
+      if (newPassword !== confirmPassword) {
+        messageDiv.textContent = 'Passwords do not match!';
+        messageDiv.className = 'message error';
+        messageDiv.classList.remove('hidden');
+        return;
+      }
+      
+      // API call to reset password
+      try {
+        const response = await fetch('/forgot-password/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail, code: verificationCode, newPassword })
+        });
+        
+        if (response.ok) {
+          messageDiv.textContent = 'Password reset successfully! Redirecting to login...';
+          messageDiv.className = 'message success';
+          messageDiv.classList.remove('hidden');
+          
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 2000);
+        } else {
+          messageDiv.textContent = 'Error resetting password. Please try again.';
+          messageDiv.className = 'message error';
+          messageDiv.classList.remove('hidden');
+        }
+        
+      } catch (error) {
+        messageDiv.textContent = 'Error resetting password. Please try again.';
+        messageDiv.className = 'message error';
+        messageDiv.classList.remove('hidden');
+      }
+    });
+
+    // Navigate to specific step
+    function goToStep(stepNumber) {
+      // Hide all steps
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('step3').classList.add('hidden');
+      
+      // Show target step
+      document.getElementById('step' + stepNumber).classList.remove('hidden');
+      
+      // Update step indicators
+      for (let i = 1; i <= 3; i++) {
+        const stepIndicator = document.getElementById('step' + i + '-indicator');
+        if (i < stepNumber) {
+          stepIndicator.classList.add('completed');
+          stepIndicator.classList.remove('active');
+        } else if (i === stepNumber) {
+          stepIndicator.classList.add('active');
+          stepIndicator.classList.remove('completed');
+        } else {
+          stepIndicator.classList.remove('active', 'completed');
+        }
+      }
+      
+      // Update step lines
+      for (let i = 1; i <= 2; i++) {
+        const line = document.getElementById('line' + i);
+        if (i < stepNumber) {
+          line.classList.add('completed');
+        } else {
+          line.classList.remove('completed');
+        }
+      }
+      
+      // Update email display and hidden fields
+      if (stepNumber === 2) {
+        document.getElementById('emailDisplay').textContent = userEmail;
+        document.getElementById('emailHidden').value = userEmail;
+      }
+      
+      if (stepNumber === 3) {
+        document.getElementById('emailHidden2').value = userEmail;
+        document.getElementById('codeHidden').value = verificationCode;
+      }
+    }
+
+    // Resend verification code
+    async function resendCode() {
+      const messageDiv = document.getElementById('message2');
+      
+      try {
+        // Simulate resending code
+        messageDiv.textContent = 'Verification code resent to your email!';
+        messageDiv.className = 'message success';
+        messageDiv.classList.remove('hidden');
+        
+        setTimeout(() => {
+          messageDiv.classList.add('hidden');
+        }, 3000);
+        
+      } catch (error) {
+        messageDiv.textContent = 'Error resending code. Please try again.';
+        messageDiv.className = 'message error';
+        messageDiv.classList.remove('hidden');
+      }
+    }
+  </script>
+
+</body>
+</html>

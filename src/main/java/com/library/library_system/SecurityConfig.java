@@ -19,7 +19,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login", "/signup", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
+                .requestMatchers("/login", "/signup", "/forgot_pass", "/css/**", "/js/**", "/images/**", "/static/**").permitAll()
                 .requestMatchers("/member/home", "/member/library").hasAuthority("MEMBER")
                 .requestMatchers("/", "/members/**", "/books/**", "/admin/**", "/borrow", "/return", "/loans/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
