@@ -417,7 +417,7 @@
             <a href="/member/borrow" style="padding: 10px 16px; background-color: #16a34a; color: white; text-decoration: none; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: background-color 0.3s; border: none; cursor: pointer;" onmouseover="this.style.backgroundColor='#15803d'" onmouseout="this.style.backgroundColor='#16a34a'">
               <i class="fa-solid fa-book-plus"></i> Borrow Book
             </a>
-            <form action="/logout" method="post" style="display: inline; margin: 0;">
+            <form th:action="@{/logout}" method="post" style="display: inline; margin: 0;">
               <button type="submit" style="padding: 10px 16px; background-color: #ef4444; color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#dc2626'" onmouseout="this.style.backgroundColor='#ef4444'">
                 <i class="fa-solid fa-sign-out-alt"></i> Logout
               </button>
