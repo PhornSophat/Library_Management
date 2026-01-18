@@ -1,0 +1,125 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+skinparam classAttributeIconSize 0
+
+legend left
+  Controllers call Services
+  Services use Repositories
+  Repositories persist Model objects
+endlegend
+
+package "Controller" {
+	class AuthController <<Controller>>
+	class DashboardController <<Controller>>
+	class MemberController <<Controller>>
+	class BorrowController <<Controller>>
+	class BookAdminController <<Controller>>
+}
+
+package "Service" {
+	class UserService <<Service>>
+	class BookService <<Service>>
+	class LoanService <<Service>>
+	class MemberService <<Service>>
+	class OverdueDetectionService <<Service>>
+}
+
+package "Repository" {
+	interface UserRepository <<Repository>>
+	interface BookRepository <<Repository>>
+	interface LoanRepository <<Repository>>
+	interface MemberRepository <<Repository>>
+}
+
+package "Model" {
+	class User {
+		+id: String
+		+name: String
+		+email: String
+		+password: String
+		+role: Role
+		+status: UserStatus
+	}
+	enum Role {
+		ADMIN
+		MEMBER
+	}
+	enum UserStatus {
+		Active
+		Inactive
+		Overdue
+		Suspended
+	}
+
+	class Book {
+		+id: String
+		+title: String
+		+author: String
+		+category: String
+		+status: String
+		+borrowCount: Integer
+		+quantity: Integer
+		+availableQuantity: Integer
+	}
+
+	class Loan {
+		+id: String
+		+bookId: String
+		+memberId: String
+		+borrowDate: LocalDate
+		+dueDate: LocalDate
+		+status: String
+	}
+
+	class Member {
+		+id: String
+		+name: String
+		+email: String
+		+phone: String
+		+status: MemberStatus
+	}
+	enum MemberStatus {
+		ACTIVE
+		INACTIVE
+	}
+}
+
+' Controller -> Service
+AuthController --> UserService
+DashboardController --> UserService
+DashboardController --> BookService
+DashboardController --> LoanService
+DashboardController --> OverdueDetectionService
+MemberController --> UserService
+MemberController --> LoanService
+MemberController --> BookService
+BorrowController --> LoanService
+BorrowController --> BookService
+BorrowController --> UserService
+BookAdminController --> BookService
+BookAdminController --> LoanService
+
+' Service -> Repository
+UserService --> UserRepository
+BookService --> BookRepository
+LoanService --> LoanRepository
+LoanService --> UserRepository
+MemberService --> MemberRepository
+OverdueDetectionService --> LoanRepository
+OverdueDetectionService --> UserRepository
+
+' Repository -> Model
+UserRepository --> User
+BookRepository --> Book
+LoanRepository --> Loan
+MemberRepository --> Member
+
+' Model relationships
+Loan --> Book : bookId
+Loan --> User : memberId
+
+@enduml

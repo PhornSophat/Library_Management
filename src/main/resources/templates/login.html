@@ -14,7 +14,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #2c1810, #4a3428, #1a1410);
+      background: linear-gradient(135deg, #e6eefb, #cdeef7);
       padding: 30px;
     }
 
@@ -31,34 +31,12 @@
     /* LEFT SIDE */
     .login-info {
       flex: 1.1;
+      background: linear-gradient(135deg, #5563f6, #6d28d9);
       color: #fff;
       padding: 80px 60px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .library-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .library-icon {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 30px;
-      background: rgba(218, 165, 32, 0.3);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 40px;
     }
 
     .login-info h1 {
@@ -66,8 +44,6 @@
       margin: 0 0 12px 0;
       line-height: 1.04;
       font-weight: 700;
-      position: relative;
-      z-index: 1;
     }
 
     .login-info p {
@@ -75,8 +51,6 @@
       line-height: 1.6;
       opacity: 0.95;
       margin: 0;
-      position: relative;
-      z-index: 1;
     }
 
     /* RIGHT SIDE */
@@ -101,152 +75,37 @@
       margin-bottom: 20px;
     }
 
-    .input-group { margin-bottom: 18px; position: relative; }
+    .input-group { margin-bottom: 18px; }
 
     label { display: block; font-size: 13px; margin-bottom: 8px; color: #374151; }
 
     input[type="email"], input[type="password"], input[type="text"] {
       width: 100%;
       padding: 14px 16px;
-      padding-right: 45px;
       border-radius: 10px;
       border: 1px solid #e6e6e6;
       font-size: 14px;
       background: #fff;
-      transition: all 0.3s ease;
     }
 
-    input:focus { 
-      outline: none; 
-      border-color: #8B6F47; 
-      box-shadow: 0 8px 24px rgba(139, 111, 71, 0.15); 
-    }
+    input:focus { outline: none; border-color: #6d28d9; box-shadow: 0 8px 24px rgba(109,40,217,0.08); }
 
-    .password-toggle {
-      position: absolute;
-      right: 16px;
-      top: 45px;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #6b7280;
-      transition: color 0.2s;
-      font-size: 18px;
-      user-select: none;
-    }
+    .options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; font-size: 14px; }
 
-    .password-toggle:hover {
-      color: #8B6F47;
-    }
+    .remember { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .remember input { width: 18px; height: 18px; }
 
-    .options { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 22px; 
-      font-size: 14px; 
-    }
+    .options a { text-decoration: none; color: #6d28d9; font-size: 13px; }
 
-    .remember { 
-      display: flex; 
-      align-items: center; 
-      gap: 8px; 
-      cursor: pointer;
-      user-select: none;
-    }
+    button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(90deg, #6d28d9, #7c3aed); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 10px 30px rgba(109,40,217,0.18); }
     
-    .remember input { 
-      width: 18px; 
-      height: 18px;
-      cursor: pointer;
-    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(109,40,217,0.3); }
 
-    .options a { 
-      text-decoration: none; 
-      color: #8B6F47; 
-      font-size: 13px;
-      transition: color 0.2s;
-    }
+    .footer-text { margin-top: 18px; text-align: center; font-size: 13px; color: #9ca3af; }
 
-    .options a:hover {
-      color: #6B5537;
-    }
+    .form-divider { margin: 20px 0 6px; border-top: 1px solid #e5e7eb; }
 
-    button { 
-      width: 100%; 
-      padding: 14px; 
-      border: none; 
-      border-radius: 12px; 
-      background: linear-gradient(90deg, #8B6F47, #A0826D); 
-      color: #fff; 
-      font-size: 16px; 
-      font-weight: 700; 
-      cursor: pointer; 
-      box-shadow: 0 10px 30px rgba(139, 111, 71, 0.25);
-      transition: all 0.3s ease;
-    }
-    
-    button:hover { 
-      transform: translateY(-2px); 
-      box-shadow: 0 14px 36px rgba(139, 111, 71, 0.35);
-      background: linear-gradient(90deg, #6B5537, #8B6F47);
-    }
-
-    .guest-button {
-      margin-top: 12px;
-      background: linear-gradient(90deg, #5a4a3a, #4a3a2a);
-      box-shadow: 0 10px 30px rgba(90, 74, 58, 0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .guest-button:hover {
-      background: linear-gradient(90deg, #4a3a2a, #3a2a1a);
-      box-shadow: 0 14px 36px rgba(90, 74, 58, 0.35);
-    }
-
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 20px 0;
-      color: #9ca3af;
-      font-size: 13px;
-    }
-
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .divider span {
-      padding: 0 15px;
-    }
-
-    .footer-text { 
-      margin-top: 18px; 
-      text-align: center; 
-      font-size: 13px; 
-      color: #9ca3af; 
-    }
-
-    .form-divider { 
-      margin: 20px 0 6px; 
-      border-top: 1px solid #e5e7eb; 
-    }
-
-    .signup-link { 
-      color: #8B6F47; 
-      text-decoration: none; 
-      font-weight: 600;
-      transition: color 0.2s;
-    }
-
-    .signup-link:hover {
-      color: #6B5537;
-    }
+    .signup-link { color: #6d28d9; text-decoration: none; font-weight: 600; }
 
     /* RESPONSIVE */
     @media (max-width: 900px) {
@@ -254,8 +113,6 @@
       .login-info { text-align: center; padding: 40px 28px; border-radius: 18px 18px 0 0; }
       .login-form { padding: 32px 28px; }
       .login-info h1 { font-size: 28px; }
-      .library-icon { margin: 0 auto 20px; }
-      .library-image { display: none; }
     }
   </style>
 </head>
@@ -265,18 +122,11 @@
   <div class="login-wrapper">
 
     <div class="login-info">
-      <div class="library-icon">📚</div>
       <h1>Library Management System</h1>
       <p>
         Access books, manage borrowing history, and explore knowledge
         through our modern digital library.
       </p>
-      
-      <!-- Library Image from External Source -->
-      <img src="https://imgs.search.brave.com/ysA4T84Vnz1dV8Q_jTP5UsSQjudwfBrs7PlNVq2JOE4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMucGV4ZWxzLmNv/bS9waG90b3MvMjc2/NzgxNC9wZXhlbHMt/cGhvdG8tMjc2Nzgx/NC5qcGVnP2F1dG89/Y29tcHJlc3MmY3M9/dGlueXNyZ2ImZHBy/PTEmdz01MDA" 
-           alt="Library" 
-           class="library-image" 
-           style="object-fit: cover; border-radius: 12px;" />
     </div>
 
     <div class="login-form">
@@ -291,8 +141,7 @@
 
         <div class="input-group">
           <label>Password</label>
-          <input type="password" id="password" name="password" placeholder="Enter your password" required>
-          <span class="password-toggle" onclick="togglePassword()">👁️</span>
+          <input type="password" name="password" placeholder="Enter your password" required>
         </div>
 
         <div class="options">
@@ -309,17 +158,6 @@
         <p class="footer-text" th:if="${error}" th:text="${error}" style="color: red;"></p>
         <p class="footer-text" th:if="${param.error}" style="color: red;">Invalid credentials. Please try again.</p>
         <p class="footer-text" th:if="${param.logout}" style="color: green;">You have been logged out.</p>
-      </form>
-
-      <div class="divider">
-        <span>OR</span>
-      </div>
-
-      <form th:action="@{/guest-login}" method="post">
-        <button type="submit" class="guest-button">
-          <span>👤</span>
-          <span>Continue as Guest</span>
-        </button>
       </form>
 
       <div class="form-divider"></div>
@@ -344,9 +182,3 @@
       } else {
         passwordInput.type = 'password';
         toggleIcon.textContent = '👁️';
-      }
-    }
-  </script>
-
-</body>
-</html>

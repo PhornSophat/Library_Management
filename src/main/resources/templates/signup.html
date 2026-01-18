@@ -17,7 +17,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: linear-gradient(135deg, #2c1810, #4a3428, #1a1410);
+      background: linear-gradient(135deg, #e6eefb, #cdeef7);
       padding: 30px;
     }
 
@@ -34,38 +34,24 @@
     /* LEFT PANEL */
     .signup-info {
       flex: 1;
+      background: linear-gradient(135deg, #5563f6, #6d28d9);
       color: #fff;
       padding: 60px 40px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .library-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
     }
 
     .signup-info h1 {
       font-size: 32px;
       margin-bottom: 15px;
       font-weight: 700;
-      position: relative;
-      z-index: 1;
     }
 
     .signup-info p {
       font-size: 15px;
       line-height: 1.6;
       opacity: 0.95;
-      position: relative;
-      z-index: 1;
     }
 
     /* RIGHT PANEL */
@@ -114,23 +100,8 @@
 
     input:focus {
       outline: none;
-      border-color: #8B6F47;
-      box-shadow: 0 8px 24px rgba(139, 111, 71, 0.15);
-    }
-
-    .password-toggle {
-      position: absolute;
-      right: 16px;
-      top: 33px;
-      cursor: pointer;
-      color: #6b7280;
-      transition: color 0.2s;
-      font-size: 18px;
-      user-select: none;
-    }
-
-    .password-toggle:hover {
-      color: #8B6F47;
+      border-color: #5563f6;
+      box-shadow: 0 8px 24px rgba(85, 99, 246, 0.15);
     }
 
     .terms {
@@ -154,19 +125,19 @@
       padding: 12px;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(90deg, #8B6F47, #A0826D);
+      background: linear-gradient(90deg, #5563f6, #6d28d9);
       color: #fff;
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 10px 30px rgba(139, 111, 71, 0.25);
+      box-shadow: 0 10px 30px rgba(85, 99, 246, 0.25);
       transition: all 0.3s ease;
     }
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 14px 36px rgba(139, 111, 71, 0.35);
-      background: linear-gradient(90deg, #6B5537, #8B6F47);
+      box-shadow: 0 14px 36px rgba(85, 99, 246, 0.35);
+      background: linear-gradient(90deg, #4149c9, #5919b8);
     }
 
     .login-link {
@@ -177,14 +148,14 @@
     }
 
     .login-link a {
-      color: #8B6F47;
+      color: #5563f6;
       text-decoration: none;
       font-weight: 600;
       transition: color 0.2s;
     }
 
     .login-link a:hover {
-      color: #6B5537;
+      color: #6d28d9;
     }
 
     /* RESPONSIVE */
@@ -196,10 +167,6 @@
       .signup-info {
         text-align: center;
         padding: 40px 30px;
-      }
-
-      .library-image {
-        display: none;
       }
     }
   </style>
@@ -215,12 +182,6 @@
         Create your account to borrow books, manage your reading history,
         and access our digital library anytime.
       </p>
-
-      <!-- Library Image from External Source -->
-      <img src="https://imgs.search.brave.com/jxSYTEC8nmSxSh_MxZ7RDxac3xfSyef0P6-KQjVt-zQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMudW5zcGxhc2gu/Y29tL3Bob3RvLTE0/ODE2Mjc4MzQ4NzYt/Yjc4MzNlOGY1NTcw/P2ZtPWpwZyZxPTYw/Jnc9MzAwMCZpeGxp/Yj1yYi00LjEuMCZp/eGlkPU0zd3hNakEz/ZkRCOE1IeHpaV0Z5/WTJoOE5IeDhiR2xp/Y21GeWVYeGxibnd3/Zkh3d2ZIeDhNQT09" 
-           alt="Library" 
-           class="library-image" 
-           style="object-fit: cover; border-radius: 12px;" />
     </div>
 
     <div class="signup-form">
@@ -241,13 +202,11 @@
         <div class="input-group">
           <label>Password</label>
           <input type="password" id="password" name="password" placeholder="Create a password (min 6 chars)" required minlength="6">
-          <span class="password-toggle" onclick="togglePassword('password', this)">👁️</span>
         </div>
 
         <div class="input-group">
           <label>Confirm Password</label>
           <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
-          <span class="password-toggle" onclick="togglePassword('confirmPassword', this)">👁️</span>
         </div>
 
         <label class="terms">
@@ -268,20 +227,6 @@
     </div>
 
   </div>
-
-  <script>
-    function togglePassword(inputId, toggleIcon) {
-      const passwordInput = document.getElementById(inputId);
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.textContent = '👁️‍🗨️';
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.textContent = '👁️';
-      }
-    }
-  </script>
 
 </body>
 </html>

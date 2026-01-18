@@ -13,10 +13,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 
 import com.library.library_system.model.User;
 import com.library.library_system.service.UserService;
-import com.springframework.boxes.oauth.starter.bean.SignUpRequest;
+import com.library.library_system.dto.SignupRequest;
 
 import java.util.Optional;
 import java.util.Map;
@@ -26,8 +27,11 @@ import java.util.HashMap;
 public class AuthController {
 
     private final UserService userService;
-    public AuthController(UserService userService) {
+    private final PasswordEncoder passwordEncoder;
+    
+    public AuthController(UserService userService, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/login")
@@ -42,7 +46,7 @@ public class AuthController {
 
     @GetMapping("/signup")
     public String signupPage(Model model) {
-        model.addAttribute("signup", new SignUpRequest());
+        model.addAttribute("signup", new SignupRequest());
         return "signup";
     }
 
