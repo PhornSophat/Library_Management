@@ -20,6 +20,10 @@ public class BookService {
         return bookRepository.count();
     }
 
+    public long getTotalAvailableBooks() {
+        return bookRepository.countByStatus("AVAILABLE");
+    }
+
     public List<Book> getTopBorrowedBooks() {
         return bookRepository.findTop5ByOrderByBorrowCountDesc();
     }
@@ -43,10 +47,24 @@ public class BookService {
     }
 
     public Book createBook(Book book) {
+        // Initialize available quantity to total when not provided
+        if (book.getAvailableQuantity() == null) {
+            book.setAvailableQuantity(book.getQuantity());
+        }
+        // Derive status from available copies
+        book.setStatus(book.getAvailableQuantity() > 0 ? "AVAILABLE" : "BORROWED");
         return bookRepository.save(book);
     }
 
     public Book updateBook(Book book) {
+        // Keep availableQuantity in range of total quantity
+        if (book.getAvailableQuantity() == null) {
+            book.setAvailableQuantity(book.getQuantity());
+        }
+        if (book.getAvailableQuantity() > book.getQuantity()) {
+            book.setAvailableQuantity(book.getQuantity());
+        }
+        book.setStatus(book.getAvailableQuantity() > 0 ? "AVAILABLE" : "BORROWED");
         return bookRepository.save(book);
     }
 
@@ -58,23 +76,55 @@ public class BookService {
         if (query == null || query.trim().isEmpty()) {
             return getAllBooks();
         }
-        String lowerQuery = query.toLowerCase();
-        return bookRepository.findAll().stream()
-            .filter(book -> 
-                (book.getTitle() != null && book.getTitle().toLowerCase().contains(lowerQuery)) ||
-                (book.getAuthor() != null && book.getAuthor().toLowerCase().contains(lowerQuery)) ||
-                (book.getCategory() != null && book.getCategory().toLowerCase().contains(lowerQuery))
+        return java.util.stream.Stream.of(
+                bookRepository.findByTitleContainingIgnoreCase(query),
+                bookRepository.findByAuthorContainingIgnoreCase(query),
+                bookRepository.findByCategoryContainingIgnoreCase(query)
             )
+            .flatMap(java.util.Collection::stream)
+            .distinct()
             .collect(java.util.stream.Collectors.toList());
     }
 
     public List<Book> filterBooksByStatus(String status) {
-        return bookRepository.findAll().stream()
-            .filter(book -> status.equals(book.getStatus()))
-            .collect(java.util.stream.Collectors.toList());
+        return bookRepository.findByStatus(status);
     }
 
     public List<Book> getAvailableBooks() {
-        return filterBooksByStatus("AVAILABLE");
+        return bookRepository.findByStatus("AVAILABLE");
+    }
+    public List<Book> getPendingReturnedBooks() {
+        return filterBooksByStatus("PENDING_RETURNED");
+    }
+
+    /**
+     * Decrement available copies when a borrow occurs. Returns saved book or empty if none available.
+     */
+    public java.util.Optional<Book> consumeOneCopy(String bookId) {
+        return bookRepository.findById(bookId).map(book -> {
+            int available = book.getAvailableQuantity();
+            if (available <= 0) {
+                throw new IllegalStateException("No copies available");
+            }
+            book.setAvailableQuantity(available - 1);
+            int current = book.getBorrowCount() == null ? 0 : book.getBorrowCount();
+            book.setBorrowCount(current + 1);
+            book.setStatus(book.getAvailableQuantity() > 0 ? "AVAILABLE" : "BORROWED");
+            return bookRepository.save(book);
+        });
+    }
+
+    /**
+     * Increment available copies when a return is confirmed.
+     */
+    public java.util.Optional<Book> releaseOneCopy(String bookId) {
+        return bookRepository.findById(bookId).map(book -> {
+            int available = book.getAvailableQuantity();
+            int total = book.getQuantity();
+            int newAvailable = Math.min(total, available + 1);
+            book.setAvailableQuantity(newAvailable);
+            book.setStatus(newAvailable > 0 ? "AVAILABLE" : "BORROWED");
+            return bookRepository.save(book);
+        });
     }
 }

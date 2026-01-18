@@ -2,8 +2,8 @@ package com.library.library_system.service;
 
 import com.library.library_system.model.Loan;
 import com.library.library_system.repository.LoanRepository;
-import com.library.library_system.repository.BookRepository;
 import com.library.library_system.repository.UserRepository;
+import com.library.library_system.service.BookService;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
@@ -15,21 +15,30 @@ import java.util.stream.Collectors;
 public class LoanService {
 
     private final LoanRepository loanRepository;
-    private final BookRepository bookRepository;
+    private final BookService bookService;
     private final UserRepository userRepository;
 
-    public LoanService(LoanRepository loanRepository, BookRepository bookRepository, UserRepository userRepository) {
+    public LoanService(LoanRepository loanRepository, BookService bookService, UserRepository userRepository) {
         this.loanRepository = loanRepository;
-        this.bookRepository = bookRepository;
+        this.bookService = bookService;
         this.userRepository = userRepository;
     }
 
     public Optional<Loan> borrowBook(String bookId, String memberId, LocalDate dueDate) {
-        return bookRepository.findById(bookId).flatMap(book -> {
-            if (!"AVAILABLE".equals(book.getStatus())) {
+        // First check: Can the member borrow? (Consolidated check)
+        if (!canBorrow(memberId)) {
+            return Optional.empty();
+        }
+        
+        return bookService.getBookById(bookId).flatMap(book -> {
+            if (book.getAvailableQuantity() <= 0) {
                 return Optional.empty();
             }
-            return userRepository.findById(memberId).map(member -> {
+
+            return userRepository.findById(memberId).flatMap(member -> {
+                // Consume one copy and persist book state
+                bookService.consumeOneCopy(book.getId()).orElseThrow();
+
                 Loan loan = new Loan();
                 loan.setBookId(book.getId());
                 loan.setBookTitle(book.getTitle());
@@ -40,32 +49,82 @@ public class LoanService {
                 loan.setDueDate(dueDate != null ? dueDate : LocalDate.now().plusWeeks(2));
                 loan.setStatus("BORROWED");
 
-                book.setStatus("BORROWED");
-                int current = book.getBorrowCount() == null ? 0 : book.getBorrowCount();
-                book.setBorrowCount(current + 1);
-
-                bookRepository.save(book);
-                return loanRepository.save(loan);
+                return Optional.of(loanRepository.save(loan));
             });
         });
     }
 
     public Optional<Loan> returnLoan(String loanId) {
         return loanRepository.findById(loanId).map(loan -> {
-            loan.setStatus("RETURNED");
+            loan.setStatus("PENDING_RETURN");
             loan.setReturnDate(LocalDate.now());
             loanRepository.save(loan);
-
-            bookRepository.findById(loan.getBookId()).ifPresent(book -> {
-                book.setStatus("AVAILABLE");
-                bookRepository.save(book);
-            });
+            // Book remains BORROWED until admin confirms return
             return loan;
         });
     }
 
+    /**
+     * Member-initiated return: validate ownership before marking pending.
+     */
+    public Optional<Loan> returnLoanForMember(String loanId, String memberId) {
+        return loanRepository.findById(loanId)
+            .filter(loan -> loan.getMemberId().equals(memberId))
+            .map(loan -> {
+                loan.setStatus("PENDING_RETURN");
+                loan.setReturnDate(LocalDate.now());
+                loanRepository.save(loan);
+                return loan;
+            });
+    }
+
+    public Optional<Loan> confirmReturn(String loanId) {
+        return loanRepository.findById(loanId).map(loan -> {
+            if ("PENDING_RETURN".equals(loan.getStatus())) {
+                loan.setStatus("RETURNED");
+                loanRepository.save(loan);
+
+                bookService.releaseOneCopy(loan.getBookId());
+            }
+            return loan;
+        });
+    }
+
+    public List<Loan> getPendingReturns() {
+        return loanRepository.findByStatus("PENDING_RETURN");
+    }
+
+    public List<Loan> getReturnedLoans() {
+        return loanRepository.findByStatus("RETURNED");
+    }
+
+    public long getTotalReturnedBooksCount() {
+        return loanRepository.countByStatus("RETURNED");
+    }
+
+    public long getTotalBorrowedBooksCount() {
+        return loanRepository.countByStatus("BORROWED");
+    }
+
+    public long getTotalActiveLoansCount() {
+        return getTotalBorrowedBooksCount();
+    }
+
     public List<Loan> getActiveLoansForMember(String memberId) {
         return loanRepository.findByMemberIdAndStatus(memberId, "BORROWED");
+    }
+
+    public int getActiveBorrowCount(String memberId) {
+        return loanRepository.findByMemberIdAndStatus(memberId, "BORROWED").size();
+    }
+
+    public boolean canBorrow(String memberId) {
+        // Do not allow borrow if member is Overdue or Suspended
+        return userRepository.findById(memberId)
+            .filter(user -> user.getStatus() != com.library.library_system.model.User.Status.Overdue
+                         && user.getStatus() != com.library.library_system.model.User.Status.Suspended)
+            .map(user -> getActiveBorrowCount(memberId) < 5)
+            .orElse(false);
     }
 
     public List<Loan> getLoansForMember(String memberId) {
@@ -80,5 +139,52 @@ public class LoanService {
 
     public List<Loan> getAllActiveLoans() {
         return loanRepository.findByStatus("BORROWED");
+    }
+
+    /**
+     * Get all overdue loans (due date passed, status still BORROWED)
+     */
+    public List<Loan> getOverdueLoans() {
+        LocalDate today = LocalDate.now();
+        List<Loan> activeLoans = getAllActiveLoans();
+        
+        return activeLoans.stream()
+            .filter(loan -> loan.getDueDate() != null && loan.getDueDate().isBefore(today))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Get overdue loans for a specific member
+     */
+    public List<Loan> getOverdueLoansForMember(String memberId) {
+        LocalDate today = LocalDate.now();
+        List<Loan> memberLoans = getActiveLoansForMember(memberId);
+        
+        return memberLoans.stream()
+            .filter(loan -> loan.getDueDate() != null && loan.getDueDate().isBefore(today))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Check if loan is overdue
+     */
+    public boolean isOverdue(Loan loan) {
+        if (loan.getDueDate() == null) {
+            return false;
+        }
+        if (!"BORROWED".equals(loan.getStatus())) {
+            return false;
+        }
+        return loan.getDueDate().isBefore(LocalDate.now());
+    }
+
+    /**
+     * Get days overdue (0 if not overdue)
+     */
+    public long getDaysOverdue(Loan loan) {
+        if (!isOverdue(loan)) {
+            return 0;
+        }
+        return java.time.temporal.ChronoUnit.DAYS.between(loan.getDueDate(), LocalDate.now());
     }
 }

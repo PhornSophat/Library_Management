@@ -67,6 +67,21 @@ public class UserService {
             }).orElse(false);
     }
 
+    /**
+     * Update password for the currently authenticated principal (by email).
+     */
+    public boolean updatePasswordForPrincipal(String email, String oldPwd, String newPwd) {
+        return userRepository.findByEmail(email)
+            .map(user -> {
+                if (passwordEncoder.matches(oldPwd, user.getPassword())) {
+                    user.setPassword(passwordEncoder.encode(newPwd));
+                    userRepository.save(user);
+                    return true;
+                }
+                return false;
+            }).orElse(false);
+    }
+
     // Create a new user (member)
     public User createUser(User user) {
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
@@ -93,20 +108,18 @@ public class UserService {
         if (query == null || query.trim().isEmpty()) {
             return getMembers();
         }
-        String lowerQuery = query.toLowerCase();
-        return userRepository.findByRole(User.Role.MEMBER).stream()
-            .filter(user -> 
-                (user.getName() != null && user.getName().toLowerCase().contains(lowerQuery)) ||
-                (user.getEmail() != null && user.getEmail().toLowerCase().contains(lowerQuery))
+        return java.util.stream.Stream.of(
+                userRepository.findByRoleAndNameContainingIgnoreCase(User.Role.MEMBER, query),
+                userRepository.findByRoleAndEmailContainingIgnoreCase(User.Role.MEMBER, query)
             )
+            .flatMap(java.util.Collection::stream)
+            .distinct()
             .collect(Collectors.toList());
     }
 
     // Filter members by status
     public List<User> filterMembersByStatus(User.Status status) {
-        return userRepository.findByRole(User.Role.MEMBER).stream()
-            .filter(user -> user.getStatus() == status)
-            .collect(Collectors.toList());
+        return userRepository.findByRoleAndStatus(User.Role.MEMBER, status);
     }
 
     // Get count by status for statistics

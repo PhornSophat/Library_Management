@@ -91,6 +91,22 @@
                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white hover:border-gray-300">
                     </div>
 
+                    <!-- Quantity Field -->
+                    <div class="group">
+                        <label for="quantity" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="fa-solid fa-boxes-stacked text-gray-400 mr-2"></i>
+                            Quantity <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" 
+                               id="quantity" 
+                               name="quantity" 
+                               required
+                               min="1"
+                               value="1"
+                               placeholder="Enter number of copies"
+                               class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white hover:border-gray-300">
+                    </div>
+
                     <!-- Info Box -->
                     <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-5 flex gap-4 shadow-sm">
                         <div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full flex-shrink-0">
@@ -98,7 +114,7 @@
                         </div>
                         <div class="text-sm text-green-800">
                             <p class="font-semibold mb-1.5">Book Information</p>
-                            <p class="text-green-700">The new book will be added with "AVAILABLE" status and 0 borrow count by default.</p>
+                            <p class="text-green-700">The new book will be added with "AVAILABLE" status and the specified quantity. You can update the quantity anytime after creation.</p>
                         </div>
                     </div>
 

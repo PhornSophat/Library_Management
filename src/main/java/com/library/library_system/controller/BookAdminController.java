@@ -2,6 +2,12 @@ package com.library.library_system.controller;
 
 import com.library.library_system.model.Book;
 import com.library.library_system.service.BookService;
+import com.library.library_system.service.LoanService;
+import com.library.library_system.dto.BookRequest;
+import com.library.library_system.dto.BookUpdateRequest;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,6 +31,9 @@ public class BookAdminController {
 
     @Autowired
     private BookService bookService;
+
+    @Autowired
+    private LoanService loanService;
 
     /**
      * Display all books with search and filter
@@ -63,7 +72,7 @@ public class BookAdminController {
      */
     @GetMapping("/add")
     public String showAddForm(Model model) {
-        model.addAttribute("book", new Book());
+        model.addAttribute("book", new BookRequest());
         return "dashboard/add_book";
     }
 
@@ -72,17 +81,22 @@ public class BookAdminController {
      * ADMIN ONLY: Creates book with AVAILABLE status and borrowCount = 0
      */
     @PostMapping("/add")
-    public String addBook(@RequestParam String title,
-                          @RequestParam String author,
-                          @RequestParam String category,
+    public String addBook(@Valid @ModelAttribute("book") BookRequest bookRequest,
+                          BindingResult bindingResult,
                           RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please fix the highlighted errors.");
+            return "redirect:/admin/books/add";
+        }
         try {
             Book newBook = new Book();
-            newBook.setTitle(title);
-            newBook.setAuthor(author);
-            newBook.setCategory(category);
+            newBook.setTitle(bookRequest.getTitle());
+            newBook.setAuthor(bookRequest.getAuthor());
+            newBook.setCategory(bookRequest.getCategory());
             newBook.setStatus("AVAILABLE");
             newBook.setBorrowCount(0);
+            newBook.setQuantity(bookRequest.getQuantity());
+            newBook.setAvailableQuantity(bookRequest.getQuantity());
             
             bookService.createBook(newBook);
             redirectAttributes.addFlashAttribute("successMessage", "Book added successfully!");
@@ -115,18 +129,27 @@ public class BookAdminController {
      */
     @PostMapping("/{id}/update")
     public String updateBook(@PathVariable String id,
-                             @RequestParam String title,
-                             @RequestParam String author,
-                             @RequestParam String category,
-                             @RequestParam String status,
+                             @Valid @ModelAttribute("bookUpdate") BookUpdateRequest request,
+                             BindingResult bindingResult,
                              RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please fix the highlighted errors.");
+            return "redirect:/admin/books/" + id;
+        }
         try {
             return bookService.getBookById(id)
                 .map(book -> {
-                    book.setTitle(title);
-                    book.setAuthor(author);
-                    book.setCategory(category);
-                    book.setStatus(status);
+                    book.setTitle(request.getTitle());
+                    book.setAuthor(request.getAuthor());
+                    book.setCategory(request.getCategory());
+                    book.setStatus(request.getStatus());
+                    if (request.getQuantity() != null) {
+                        book.setQuantity(request.getQuantity());
+                        // Keep available copies within new total
+                        if (book.getAvailableQuantity() > book.getQuantity()) {
+                            book.setAvailableQuantity(book.getQuantity());
+                        }
+                    }
                     bookService.updateBook(book);
                     redirectAttributes.addFlashAttribute("successMessage", "Book updated successfully");
                     return "redirect:/admin/books/" + id;
@@ -154,6 +177,11 @@ public class BookAdminController {
                     if ("BORROWED".equals(book.getStatus())) {
                         redirectAttributes.addFlashAttribute("errorMessage", 
                             "Cannot delete: Book is currently borrowed. Please wait for return.");
+                        return "redirect:/admin/books/" + id;
+                    }
+                    if (loanService.getActiveLoanForBook(id).isPresent()) {
+                        redirectAttributes.addFlashAttribute("errorMessage", 
+                            "Cannot delete: Book has an active loan. Please wait for return.");
                         return "redirect:/admin/books/" + id;
                     }
                     

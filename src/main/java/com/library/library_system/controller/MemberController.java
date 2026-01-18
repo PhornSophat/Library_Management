@@ -1,9 +1,12 @@
 package com.library.library_system.controller;
 
 import com.library.library_system.model.User;
+import com.library.library_system.model.Loan;
 import com.library.library_system.service.UserService;
 import com.library.library_system.service.LoanService;
 import com.library.library_system.service.BookService;
+import com.library.library_system.dto.MemberBorrowRequest;
+import com.library.library_system.dto.MemberReturnRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,6 +16,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping("/member")
@@ -106,6 +113,13 @@ public class MemberController {
         
         return userService.findByEmail(email)
             .flatMap(member -> {
+                // Consolidated check: Can member borrow?
+                if (!loanService.canBorrow(member.getId())) {
+                    redirectAttributes.addFlashAttribute("errorMessage", 
+                        "You have already borrowed 5 books (the maximum limit). Please return a book before borrowing another.");
+                    return java.util.Optional.empty();
+                }
+                
                 // Set default due date if not provided (2 weeks from now)
                 java.time.LocalDate borrowDueDate = dueDate != null ? dueDate : java.time.LocalDate.now().plusWeeks(2);
                 
@@ -124,7 +138,9 @@ public class MemberController {
     }
 
     @GetMapping("/borrow")
-    public String memberBorrow(Authentication authentication, Model model) {
+    public String memberBorrow(Authentication authentication, 
+                              @RequestParam(required = false) String bookId,
+                              Model model) {
         String email = authentication.getName();
         
         return userService.findByEmail(email)
@@ -133,6 +149,14 @@ public class MemberController {
                 model.addAttribute("availableBooks", bookService.getAvailableBooks());
                 model.addAttribute("activeLoans", loanService.getActiveLoansForMember(member.getId()));
                 model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                
+                // If bookId is provided, pre-select the book
+                if (bookId != null && !bookId.isEmpty()) {
+                    bookService.getBookById(bookId).ifPresent(book -> {
+                        model.addAttribute("selectedBook", book);
+                    });
+                }
+                
                 return "borrow/BorrowBook";
             })
             .orElse("redirect:/login");
@@ -147,21 +171,28 @@ public class MemberController {
                 model.addAttribute("member", member);
                 model.addAttribute("memberLoans", loanService.getActiveLoansForMember(member.getId()));
                 model.addAttribute("loanCount", loanService.getActiveLoansForMember(member.getId()).size());
+                model.addAttribute("pendingReturnsCount", loanService.getPendingReturns().size());
                 return "borrow/ReturnBook";
             })
             .orElse("redirect:/login");
     }
 
     @PostMapping("/borrow/submit")
-    public String submitBorrow(@RequestParam String bookId,
+    public String submitBorrow(@Valid @ModelAttribute("borrow") MemberBorrowRequest request,
+                              BindingResult bindingResult,
                               Authentication authentication,
                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please select a book to borrow.");
+            return "redirect:/member/borrow";
+        }
         String email = authentication.getName();
         
         return userService.findByEmail(email)
             .flatMap(member -> {
-                java.time.LocalDate dueDate = java.time.LocalDate.now().plusWeeks(2);
-                return loanService.borrowBook(bookId, member.getId(), dueDate)
+                // Use provided due date or default to 2 weeks
+                java.time.LocalDate borrowDueDate = request.getDueDate() != null ? request.getDueDate() : java.time.LocalDate.now().plusWeeks(2);
+                return loanService.borrowBook(request.getBookId(), member.getId(), borrowDueDate)
                     .map(loan -> {
                         redirectAttributes.addFlashAttribute("successMessage", 
                             "Successfully borrowed '" + loan.getBookTitle() + "'. Due date: " + loan.getDueDate());
@@ -176,18 +207,26 @@ public class MemberController {
     }
 
     @PostMapping("/return/submit")
-    public String submitReturn(@RequestParam String loanId,
+    public String submitReturn(@Valid @ModelAttribute("returnReq") MemberReturnRequest request,
+                              BindingResult bindingResult,
                               Authentication authentication,
                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-        return loanService.returnLoan(loanId)
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please select a loan to return.");
+            return "redirect:/member/return";
+        }
+        String email = authentication.getName();
+
+        return userService.findByEmail(email)
+            .flatMap(member -> loanService.returnLoanForMember(request.getLoanId(), member.getId()))
             .map(loan -> {
                 redirectAttributes.addFlashAttribute("successMessage", 
-                    "Successfully returned '" + loan.getBookTitle() + "'.");
+                    "Return request submitted for '" + loan.getBookTitle() + "'. Waiting for admin verification.");
                 return "redirect:/member/return";
             })
             .orElseGet(() -> {
                 redirectAttributes.addFlashAttribute("errorMessage", 
-                    "Cannot return book. Please try again.");
+                    "Cannot submit return request. Please try again.");
                 return "redirect:/member/return";
             });
     }

@@ -17,4 +17,9 @@ public interface BookRepository extends MongoRepository<Book, String> {
     // Get top 5 most borrowed books
     List<Book> findTop5ByOrderByBorrowCountDesc();
 
+    List<Book> findByStatus(String status);
+    List<Book> findByTitleContainingIgnoreCase(String title);
+    List<Book> findByAuthorContainingIgnoreCase(String author);
+    List<Book> findByCategoryContainingIgnoreCase(String category);
+
 }

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overdue Loans - Library System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Main Container -->
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <!-- Top Navigation -->
+            <div th:replace="~{fragments/navigation :: navigation}"></div>
+
+            <!-- Page Content -->
+            <div class="p-8 space-y-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Overdue Loans</h1>
+                        <p class="text-gray-600 mt-1">Books with overdue due dates</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <form method="post" action="/admin/process-overdue" class="inline">
+                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                                🔄 Refresh Overdue Status
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="p-4 bg-green-100 border border-green-300 text-green-700 rounded-lg flex items-center gap-3">
+                    <span>✅</span>
+                    <p th:text="${successMessage}"></p>
+                </div>
+                <div th:if="${errorMessage}" class="p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg flex items-center gap-3">
+                    <span>❌</span>
+                    <p th:text="${errorMessage}"></p>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-red-500">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-600 text-sm font-semibold uppercase">Total Overdue Loans</p>
+                                <p class="text-3xl font-bold text-red-600 mt-2" th:text="${overdueCount}">0</p>
+                            </div>
+                            <div class="text-4xl text-red-500 opacity-20">📅</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-orange-500">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-600 text-sm font-semibold uppercase">Members With Overdue</p>
+                                <p class="text-3xl font-bold text-orange-600 mt-2" th:text="${overdueList?.size() ?: 0}">0</p>
+                            </div>
+                            <div class="text-4xl text-orange-500 opacity-20">👥</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow p-6 border-l-4 border-yellow-500">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-600 text-sm font-semibold uppercase">Action Required</p>
+                                <p class="text-3xl font-bold text-yellow-600 mt-2">⚠️</p>
+                            </div>
+                            <div class="text-4xl text-yellow-500 opacity-20">🚨</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overdue Loans Table -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 bg-red-50 border-b">
+                        <h2 class="text-xl font-bold text-gray-800">Overdue Loans List</h2>
+                    </div>
+
+                    <div th:if="${overdueLoans != null and !overdueLoans.isEmpty()}" class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Book Title</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Member</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Due Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Days Overdue</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Borrow Date</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr th:each="loan : ${overdueLoans}" class="hover:bg-red-50 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="font-semibold text-gray-800" th:text="${loan.bookTitle}">Book Title</div>
+                                        <div class="text-sm text-gray-500" th:text="${loan.bookAuthor}">Author</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="font-semibold text-gray-800" th:text="${loan.memberName}">Member Name</div>
+                                        <div class="text-sm text-gray-500" th:text="${loan.memberId}">Member ID</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-red-600 font-semibold" th:text="${#temporals.format(loan.dueDate, 'dd MMM yyyy')}">01 Jan 2026</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span th:with="daysOverdue=${T(java.time.temporal.ChronoUnit).DAYS.between(loan.dueDate, T(java.time.LocalDate).now())}"
+                                              class="px-3 py-1 bg-red-100 text-red-700 rounded-full font-bold text-sm"
+                                              th:text="${daysOverdue} + ' days'">0 days</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-gray-600 text-sm" th:text="${#temporals.format(loan.borrowDate, 'dd MMM yyyy')}">01 Jan 2026</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <a th:href="@{/members/{id}(id=${loan.memberId})}" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition">
+                                            View Member
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${overdueLoans == null or overdueLoans.isEmpty()}" class="p-12 text-center">
+                        <div class="text-6xl mb-4">✅</div>
+                        <h3 class="text-xl font-bold text-gray-800">No Overdue Loans</h3>
+                        <p class="text-gray-600 mt-2">All books are on track with their due dates!</p>
+                    </div>
+                </div>
+
+                <!-- Overdue Members Section -->
+                <div class="bg-white rounded-lg shadow overflow-hidden" th:if="${overdueList != null and !overdueList.isEmpty()}">
+                    <div class="px-6 py-4 bg-orange-50 border-b">
+                        <h2 class="text-xl font-bold text-gray-800">Members With Overdue Status</h2>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100 border-b">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Active Loans</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr th:each="member : ${overdueList}" class="hover:bg-orange-50 transition">
+                                    <td class="px-6 py-4">
+                                        <div class="font-semibold text-gray-800" th:text="${member.name}">Member Name</div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-gray-600 text-sm" th:text="${member.email}">email@example.com</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full font-semibold text-xs">OVERDUE</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="font-semibold text-gray-800" th:text="${member.id}">0</span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <a th:href="@{/members/{id}(id=${member.id})}" class="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition">
+                                            View Profile
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
